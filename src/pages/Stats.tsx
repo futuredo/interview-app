@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, Clock3, Globe2, RefreshCw, TrendingUp } from 'lucide-react';
+import { Activity, Clock3, Globe2, TrendingUp } from 'lucide-react';
 
 interface RegionShare {
   name: string;
