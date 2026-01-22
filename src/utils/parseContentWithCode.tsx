@@ -1,4 +1,3 @@
-import React from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 
 export const parseContentWithCode = (content: string) => {

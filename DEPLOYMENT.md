@@ -54,3 +54,10 @@ npm run deploy
 ## 常见问题
 1. **页面空白**：检查 `base` 是否设置正确。
 2. **路由刷新 404**：建议在 GitHub Pages 开启 SPA 回退（可使用 `404.html` 方案）或改用 HashRouter。
+
+## 自动部署（GitHub Actions）
+已提供工作流：`.github/workflows/deploy.yml`。
+
+启用方法：
+1. 推送到 `main` 分支后自动触发部署
+2. 首次需要在 GitHub 仓库 Settings → Pages，选择 **GitHub Actions** 作为 Source
