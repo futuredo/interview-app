@@ -12,7 +12,6 @@ import { ConfirmModal } from '../components/ConfirmModal';
 export const Workbench: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [userAnswer, setUserAnswer] = useState('');
     const {
         completeQuestion,
         setRating,
@@ -24,6 +23,8 @@ export const Workbench: React.FC = () => {
         resetPracticeCount,
         adminAnswerOverrides,
         questionBank,
+        userNotes,
+        saveUserNote,
     } = useStore();
 
     const question = questionBank.find(q => q.id === id) as Question | undefined;
@@ -35,6 +36,8 @@ export const Workbench: React.FC = () => {
     const finalAnswer = question
         ? (overrideContent?.trim()?.length ? overrideContent : (extractedAnswer.trim().length ? extractedAnswer : question.content))
         : '';
+
+    const userAnswer = question ? (userNotes[question.id] || '') : '';
 
     const questionId = question?.id;
 
@@ -119,7 +122,9 @@ export const Workbench: React.FC = () => {
                         </label>
                         <textarea
                             value={userAnswer}
-                            onChange={(e) => setUserAnswer(e.target.value)}
+                            onChange={(e) => {
+                                saveUserNote(question.id, e.target.value);
+                            }}
                             placeholder="在这里尝试写下你的思路..."
                             className="w-full h-32 p-4 rounded-xl border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition-all resize-none bg-[var(--color-surface)] text-[var(--color-text-main)] placeholder-[var(--color-text-secondary)]/50"
                         />

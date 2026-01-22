@@ -21,6 +21,8 @@ export const Challenge: React.FC = () => {
         challengeConfig,
         adminAnswerOverrides,
         questionBank,
+        userNotes,
+        saveUserNote,
     } = useStore();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showAnswer, setShowAnswer] = useState(false);
@@ -181,6 +183,7 @@ export const Challenge: React.FC = () => {
     const isFavorite = favorites.includes(currentQuestion.id);
     const isWrong = wrongQuestions.includes(currentQuestion.id);
     const sourceLabel = activeConfig.questionSource === 'favorites' ? '收藏夹' : activeConfig.questionSource === 'wrong' ? '错题本' : '全量题库';
+    const userAnswer = userNotes[currentQuestion.id] || '';
 
     const handleShowAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -269,6 +272,10 @@ export const Challenge: React.FC = () => {
                                     你的回答 (可选)
                                 </label>
                                 <textarea
+                                    value={userAnswer}
+                                    onChange={(e) => {
+                                        saveUserNote(currentQuestion.id, e.target.value);
+                                    }}
                                     className="w-full h-32 p-4 rounded-xl border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition-all resize-none bg-[var(--color-surface)] text-[var(--color-text-main)] placeholder-[var(--color-text-secondary)]/50"
                                     placeholder="在这里写下你的思路..."
                                 />
