@@ -11,6 +11,7 @@ import { Favorites } from './pages/Favorites';
 import { CheckIn } from './pages/CheckIn';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Stats } from './pages/Stats';
 import { useStore } from './store/useStore';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
           <Route path="/challenge/play" element={<Challenge />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/checkin" element={<CheckIn />} />
+          <Route path="/stats" element={<Stats />} />
           <Route
             path="/admin"
             element={(
