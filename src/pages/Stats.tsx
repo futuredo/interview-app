@@ -18,6 +18,7 @@ const STORAGE_KEY = 'mock-traffic-stats';
 const TODAY = () => new Date().toISOString().slice(0, 10);
 
 const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+const randomDuration = (min: number, max: number) => Math.round((min + Math.random() * (max - min)) * 10) / 10;
 
 const generateRegionShares = (): RegionShare[] => {
   // Overseas first, then Sichuan/Shandong with higher weights, others random.
@@ -52,7 +53,7 @@ const generateRegionShares = (): RegionShare[] => {
 const buildInitialState = (): StatsState => ({
   totalVisits: 168,
   lastUpdatedDate: TODAY(),
-  avgDurationMinutes: randomInt(22, 45),
+  avgDurationMinutes: randomDuration(20, 40),
   regionShares: generateRegionShares(),
   todayIncrement: 0,
 });
@@ -88,7 +89,7 @@ export const Stats: React.FC = () => {
         ...next,
         totalVisits: next.totalVisits + dailyGrowth,
         todayIncrement: dailyGrowth + (fromTimer ? 0 : 2),
-        avgDurationMinutes: randomInt(20, 45),
+        avgDurationMinutes: randomDuration(20, 40),
         regionShares: generateRegionShares(),
         lastUpdatedDate: today,
       };
@@ -106,7 +107,7 @@ export const Stats: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => syncStats(true), 60 * 60 * 1000); // hourly check for daily rollover
+    const id = setInterval(() => syncStats(true), 30 * 60 * 1000); // refresh every 30 minutes
     return () => clearInterval(id);
   }, [syncStats]);
 
@@ -146,7 +147,7 @@ export const Stats: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[var(--color-text-secondary)]">人均使用时长</p>
-              <p className="text-3xl font-bold mt-2 text-[var(--color-text-main)]">{stats.avgDurationMinutes} 分钟</p>
+              <p className="text-3xl font-bold mt-2 text-[var(--color-text-main)]">{stats.avgDurationMinutes.toFixed(1)} 分钟</p>
             </div>
             <Clock3 className="w-10 h-10 text-[var(--color-primary)]" />
           </div>
