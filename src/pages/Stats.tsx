@@ -138,7 +138,6 @@ export const Stats: React.FC = () => {
             </div>
             <Activity className="w-10 h-10 text-[var(--color-primary)]" />
           </div>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-3">自动累加，含当前访问 +2</p>
         </div>
 
         <div className="card">
@@ -149,7 +148,6 @@ export const Stats: React.FC = () => {
             </div>
             <TrendingUp className="w-10 h-10 text-[var(--color-primary)]" />
           </div>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-3">日增随机 40+，含访问加成</p>
         </div>
 
         <div className="card">
@@ -160,7 +158,6 @@ export const Stats: React.FC = () => {
             </div>
             <Clock3 className="w-10 h-10 text-[var(--color-primary)]" />
           </div>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-3">随机值，不低于 20 分钟</p>
         </div>
       </div>
 
