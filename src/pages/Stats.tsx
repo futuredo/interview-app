@@ -119,13 +119,6 @@ export const Stats: React.FC = () => {
           <p className="text-sm text-[var(--color-text-secondary)]">数据统计</p>
           <h1 className="text-2xl font-bold text-[var(--color-text-main)] mt-1">站点流量概览</h1>
         </div>
-        <button
-          onClick={() => syncStats()}
-          className="btn-secondary gap-2"
-        >
-          <RefreshCw className="w-4 h-4" />
-          手动刷新
-        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
