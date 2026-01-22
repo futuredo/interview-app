@@ -79,8 +79,8 @@ export const Stats: React.FC = () => {
 
     if (!fromTimer) {
       // Count the current visit.
-      next.totalVisits += 2;
-      next.todayIncrement = (next.todayIncrement || 0) + 2;
+      next.totalVisits += 1;
+      next.todayIncrement = (next.todayIncrement || 0) + 1;
     }
 
     if (next.lastUpdatedDate !== today) {
@@ -88,7 +88,7 @@ export const Stats: React.FC = () => {
       next = {
         ...next,
         totalVisits: next.totalVisits + dailyGrowth,
-        todayIncrement: dailyGrowth + (fromTimer ? 0 : 2),
+        todayIncrement: dailyGrowth + (fromTimer ? 0 : 1),
         avgDurationMinutes: randomDuration(20, 40),
         regionShares: generateRegionShares(),
         lastUpdatedDate: today,
