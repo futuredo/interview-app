@@ -103,4 +103,3 @@ sequenceDiagram
 
 ---
 
-如果需要我帮你生成自动部署的 GitHub Actions 工作流，告诉我仓库名即可。
