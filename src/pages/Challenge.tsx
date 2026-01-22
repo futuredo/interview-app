@@ -35,6 +35,7 @@ export const Challenge: React.FC = () => {
     const [questionTimerKey, setQuestionTimerKey] = useState(0);
     const [activeConfig, setActiveConfig] = useState(challengeConfig);
     const [exitModalOpen, setExitModalOpen] = useState(false);
+    const [answerDrafts, setAnswerDrafts] = useState<Record<string, string>>({});
 
     const getTitleNumber = (title: string): number => {
         const match = title.match(/^(\d+)\./);
@@ -183,7 +184,7 @@ export const Challenge: React.FC = () => {
     const isFavorite = favorites.includes(currentQuestion.id);
     const isWrong = wrongQuestions.includes(currentQuestion.id);
     const sourceLabel = activeConfig.questionSource === 'favorites' ? '收藏夹' : activeConfig.questionSource === 'wrong' ? '错题本' : '全量题库';
-    const userAnswer = userNotes[currentQuestion.id] || '';
+    const userAnswer = answerDrafts[currentQuestion.id] ?? userNotes[currentQuestion.id] ?? '';
 
     const handleShowAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -274,11 +275,24 @@ export const Challenge: React.FC = () => {
                                 <textarea
                                     value={userAnswer}
                                     onChange={(e) => {
-                                        saveUserNote(currentQuestion.id, e.target.value);
+                                        const nextValue = e.target.value;
+                                        setAnswerDrafts((prev) => ({
+                                            ...prev,
+                                            [currentQuestion.id]: nextValue,
+                                        }));
                                     }}
                                     className="w-full h-32 p-4 rounded-xl border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition-all resize-none bg-[var(--color-surface)] text-[var(--color-text-main)] placeholder-[var(--color-text-secondary)]/50"
                                     placeholder="在这里写下你的思路..."
                                 />
+                                <div className="flex justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => saveUserNote(currentQuestion.id, userAnswer.trim())}
+                                        className="btn-primary px-4 py-2 rounded-lg"
+                                    >
+                                        提交答案
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="flex justify-center py-4">

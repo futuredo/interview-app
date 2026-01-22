@@ -10,6 +10,7 @@ import { extractQuestionSection, extractAnswerSection } from '../utils/questionC
 import { ConfirmModal } from '../components/ConfirmModal';
 
 export const Workbench: React.FC = () => {
+    const [answerDrafts, setAnswerDrafts] = useState<Record<string, string>>({});
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const {
@@ -36,10 +37,8 @@ export const Workbench: React.FC = () => {
     const finalAnswer = question
         ? (overrideContent?.trim()?.length ? overrideContent : (extractedAnswer.trim().length ? extractedAnswer : question.content))
         : '';
-
-    const userAnswer = question ? (userNotes[question.id] || '') : '';
-
     const questionId = question?.id;
+    const userAnswer = questionId ? (answerDrafts[questionId] ?? userNotes[questionId] ?? '') : '';
 
     if (!question) return <div className="text-center mt-20 text-gray-600">未找到题目</div>;
 
@@ -123,11 +122,27 @@ export const Workbench: React.FC = () => {
                         <textarea
                             value={userAnswer}
                             onChange={(e) => {
-                                saveUserNote(question.id, e.target.value);
+                                const nextValue = e.target.value;
+                                setAnswerDrafts((prev) => ({
+                                    ...prev,
+                                    [question.id]: nextValue,
+                                }));
                             }}
                             placeholder="在这里尝试写下你的思路..."
                             className="w-full h-32 p-4 rounded-xl border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition-all resize-none bg-[var(--color-surface)] text-[var(--color-text-main)] placeholder-[var(--color-text-secondary)]/50"
                         />
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!questionId) return;
+                                    saveUserNote(questionId, userAnswer.trim());
+                                }}
+                                className="btn-primary px-4 py-2 rounded-lg"
+                            >
+                                提交答案
+                            </button>
+                        </div>
                     </div>
 
                     {/* Answer Display Section */}
