@@ -1,14 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { QuestionList } from '../components/QuestionList';
 import type { Question } from '../types';
 import { Search, Filter, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 export const QuestionBank: React.FC = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default');
-    const questionBank = useStore((state) => state.questionBank);
+    const { questionBank, questionBankFilters, setQuestionBankFilters, resetQuestionBankFilters } = useStore();
+    const { searchTerm, selectedTag, sortOrder } = questionBankFilters;
 
     // Get all unique tags
     const allTags = useMemo(() => {
@@ -59,12 +57,12 @@ export const QuestionBank: React.FC = () => {
                             type="text"
                             placeholder="搜索题目..."
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => setQuestionBankFilters({ searchTerm: e.target.value })}
                             className="w-full pl-10 pr-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                         />
                         {searchTerm && (
                             <button
-                                onClick={() => setSearchTerm('')}
+                                onClick={() => setQuestionBankFilters({ searchTerm: '' })}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-[var(--color-hover)] rounded-full text-[var(--color-text-secondary)]"
                             >
                                 <X className="w-4 h-4" />
@@ -82,9 +80,9 @@ export const QuestionBank: React.FC = () => {
 
                         {/* Dropdown */}
                         <div className="absolute top-full right-0 mt-2 w-40 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 p-2">
-                            <button onClick={() => setSortOrder('default')} className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-[var(--color-hover)] text-[var(--color-text-main)]">默认排序</button>
-                            <button onClick={() => setSortOrder('asc')} className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-[var(--color-hover)] text-[var(--color-text-main)]">题号正序</button>
-                            <button onClick={() => setSortOrder('desc')} className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-[var(--color-hover)] text-[var(--color-text-main)]">题号倒序</button>
+                            <button onClick={() => setQuestionBankFilters({ sortOrder: 'default' })} className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-[var(--color-hover)] text-[var(--color-text-main)]">默认排序</button>
+                            <button onClick={() => setQuestionBankFilters({ sortOrder: 'asc' })} className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-[var(--color-hover)] text-[var(--color-text-main)]">题号正序</button>
+                            <button onClick={() => setQuestionBankFilters({ sortOrder: 'desc' })} className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-[var(--color-hover)] text-[var(--color-text-main)]">题号倒序</button>
                         </div>
                     </div>
 
@@ -97,7 +95,7 @@ export const QuestionBank: React.FC = () => {
                         {/* Dropdown */}
                         <div className="absolute top-full right-0 mt-2 w-64 max-h-80 overflow-y-auto bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 p-2">
                             <button
-                                onClick={() => setSelectedTag(null)}
+                                onClick={() => setQuestionBankFilters({ selectedTag: null })}
                                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!selectedTag ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-[var(--color-text-main)] hover:bg-[var(--color-hover)]'}`}
                             >
                                 所有标签
@@ -105,7 +103,7 @@ export const QuestionBank: React.FC = () => {
                             {allTags.map(tag => (
                                 <button
                                     key={tag}
-                                    onClick={() => setSelectedTag(tag)}
+                                    onClick={() => setQuestionBankFilters({ selectedTag: tag })}
                                     className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedTag === tag ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-[var(--color-text-main)] hover:bg-[var(--color-hover)]'}`}
                                 >
                                     {tag}
@@ -113,6 +111,12 @@ export const QuestionBank: React.FC = () => {
                             ))}
                         </div>
                     </div>
+                    <button
+                        onClick={resetQuestionBankFilters}
+                        className="px-4 py-3 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)] transition-colors"
+                    >
+                        重置筛选
+                    </button>
                 </div>
             </div>
 

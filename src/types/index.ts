@@ -16,6 +16,12 @@ export interface ChallengeConfig {
     orderMode: 'random' | 'sequence';
 }
 
+export interface QuestionBankFilters {
+    searchTerm: string;
+    selectedTag: string | null;
+    sortOrder: 'default' | 'asc' | 'desc';
+}
+
 export interface UserLog {
     id: string;
     content: string;
@@ -86,6 +92,7 @@ export interface UserState {
     messageBoard: MessageBoardItem[];
     adminAnswerOverrides: Record<string, string>;
     questionBank: Question[];
+    questionBankFilters: QuestionBankFilters;
     profile: UserProfile;
     userLogs: UserLog[];
     authUser?: AuthUser;
@@ -113,6 +120,8 @@ export interface UserState {
     setProfile: (profile: UserProfile) => void;
     setAdminAnswer: (id: string, content: string) => void;
     setQuestionBank: (questions: Question[]) => void;
+    setQuestionBankFilters: (filters: Partial<QuestionBankFilters>) => void;
+    resetQuestionBankFilters: () => void;
     addQuestion: (question: Question) => void;
     updateQuestion: (id: string, updates: Partial<Question>) => void;
     deleteQuestion: (id: string) => void;

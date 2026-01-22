@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Question, UserState } from '../types';
+import type { Question, UserState, QuestionBankFilters } from '../types';
 import questionsData from '../data/questions.json';
 
 const normalizeQuestion = (question: Question): Question => ({
@@ -10,6 +10,12 @@ const normalizeQuestion = (question: Question): Question => ({
 
 const createInitialQuestionBank = (): Question[] =>
     (questionsData as unknown as Question[]).map((item) => normalizeQuestion(item));
+
+const defaultQuestionBankFilters: QuestionBankFilters = {
+    searchTerm: '',
+    selectedTag: null,
+    sortOrder: 'default',
+};
 
 export const useStore = create<UserState>()(
     persist(
@@ -38,6 +44,7 @@ export const useStore = create<UserState>()(
             messageBoard: [],
             adminAnswerOverrides: {},
             questionBank: createInitialQuestionBank(),
+            questionBankFilters: defaultQuestionBankFilters,
             profile: {
                 nickname: '访客',
                 avatarUrl: '',
@@ -204,6 +211,17 @@ export const useStore = create<UserState>()(
             setQuestionBank: (questions) =>
                 set(() => ({
                     questionBank: questions.map((question) => normalizeQuestion(question)),
+                })),
+            setQuestionBankFilters: (filters) =>
+                set((state) => ({
+                    questionBankFilters: {
+                        ...state.questionBankFilters,
+                        ...filters,
+                    },
+                })),
+            resetQuestionBankFilters: () =>
+                set(() => ({
+                    questionBankFilters: defaultQuestionBankFilters,
                 })),
             addQuestion: (question) =>
                 set((state) => ({
