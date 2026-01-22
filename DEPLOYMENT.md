@@ -53,7 +53,7 @@ npm run deploy
 
 ## 常见问题
 1. **页面空白**：检查 `base` 是否设置正确。
-2. **路由刷新 404**：建议在 GitHub Pages 开启 SPA 回退（可使用 `404.html` 方案）或改用 HashRouter。
+2. **路由刷新 404**：GitHub Pages 不支持前端路由回退，推荐在 `public/404.html` 增加 SPA 回退文件（本项目已提供）。
 
 ## 自动部署（GitHub Actions）
 已提供工作流：`.github/workflows/deploy.yml`。
