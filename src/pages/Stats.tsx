@@ -118,7 +118,6 @@ export const Stats: React.FC = () => {
         <div>
           <p className="text-sm text-[var(--color-text-secondary)]">数据统计</p>
           <h1 className="text-2xl font-bold text-[var(--color-text-main)] mt-1">站点流量概览</h1>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">初始值 168，每次访问 +2，日增 40+ 随机</p>
         </div>
         <button
           onClick={() => syncStats()}
@@ -166,7 +165,6 @@ export const Stats: React.FC = () => {
           <div>
             <p className="text-sm text-[var(--color-text-secondary)]">地区占比</p>
             <h2 className="text-xl font-semibold text-[var(--color-text-main)] mt-1">按 IP 归属地</h2>
-            <p className="text-xs text-[var(--color-text-secondary)] mt-1">海外优先，其次四川、山东，其余随机</p>
           </div>
           <Globe2 className="w-6 h-6 text-[var(--color-primary)]" />
         </div>
