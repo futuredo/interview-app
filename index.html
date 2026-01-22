@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>interview-app</title>
+    <script>
+      (function () {
+        var redirect = sessionStorage.getItem('spa-redirect');
+        if (redirect) {
+          sessionStorage.removeItem('spa-redirect');
+          var base = '/interview-app';
+          var cleaned = redirect.startsWith(base) ? redirect.slice(base.length) : redirect;
+          window.history.replaceState(null, '', base + cleaned);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

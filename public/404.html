@@ -2,8 +2,14 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; url=./" />
     <title>Redirecting...</title>
+    <script>
+      (function () {
+        var redirect = window.location.pathname + window.location.search + window.location.hash;
+        sessionStorage.setItem('spa-redirect', redirect);
+        window.location.replace('/interview-app/');
+      })();
+    </script>
   </head>
   <body>
     <p>Redirecting...</p>
