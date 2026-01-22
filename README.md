@@ -11,7 +11,12 @@
 - **打卡与目标**：每日打卡与学习目标管理。
 - **管理员能力**：题库管理、答案覆盖、内容维护。
 
-## 环境要求
+[在线访问](https://futuredo.github.io/interview-app/) · [部署指南](DEPLOYMENT.md) · [公益说明](README.md#项目初衷与公益性我的视角)
+
+![GitHub stars](https://img.shields.io/github/stars/futuredo/interview-app?style=flat)
+![GitHub forks](https://img.shields.io/github/forks/futuredo/interview-app?style=flat)
+![GitHub issues](https://img.shields.io/github/issues/futuredo/interview-app?style=flat)
+![License](https://img.shields.io/github/license/futuredo/interview-app?style=flat)## 环境要求
 - Node.js 18+（推荐 20+）
 - pnpm / npm / yarn 任选其一
 
