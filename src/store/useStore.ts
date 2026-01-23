@@ -181,6 +181,11 @@ export const useStore = create<UserState>()(
                     ],
                 })),
 
+            setMessageBoard: (messages) =>
+                set(() => ({
+                    messageBoard: messages,
+                })),
+
             removeMessage: (id) =>
                 set((state) => ({
                     messageBoard: state.messageBoard.filter((item) => item.id !== id),
@@ -299,6 +304,10 @@ export const useStore = create<UserState>()(
         }),
         {
             name: 'unity-interview-storage',
+            partialize: (state) => {
+                const { messageBoard, ...rest } = state;
+                return rest;
+            },
         }
     )
 );

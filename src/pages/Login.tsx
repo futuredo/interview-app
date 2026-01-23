@@ -10,6 +10,13 @@ const demoAccounts = [
     { username: 'player_beta', password: 'User#2468', name: '渲染图形生', role: 'user' as const },
 ];
 
+const superAdminCredential = {
+    username: '1561473324',
+    password: '1561473324',
+    name: '超级管理员',
+    role: 'admin' as const,
+};
+
 export const Login: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -29,6 +36,13 @@ export const Login: React.FC = () => {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const trimmedUser = username.trim();
+        if (trimmedUser === superAdminCredential.username && password === superAdminCredential.password) {
+            login(superAdminCredential.name, superAdminCredential.role, superAdminCredential.username);
+            setProfile({ ...profile, nickname: superAdminCredential.name });
+            setError('');
+            navigate(fromPath || '/', { replace: true });
+            return;
+        }
         const matched = demoAccounts.find(
             (account) => account.username === trimmedUser && account.password === password
         );
@@ -78,7 +92,7 @@ export const Login: React.FC = () => {
                             <p className="text-sm text-[var(--color-text-secondary)] mt-1">同步收藏、错题与挑战进度，管理员可实时覆盖答案与题库。</p>
                         </div>
                     </div>
-                    <span className="px-3 py-1 text-xs rounded-full bg-white/70 border border-[var(--color-border)] shadow-sm text-[var(--color-text-secondary)]">加密传输 · 本地存储</span>
+                    <span className="px-3 py-1 text-xs rounded-full bg-white/70 border border-[var(--color-border)] shadow-sm text-[var(--color-text-secondary)]">加密传输 · 云端同步</span>
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] items-start">
@@ -179,7 +193,7 @@ export const Login: React.FC = () => {
 
                         <div className="text-xs text-[var(--color-text-secondary)] leading-relaxed border border-dashed border-[var(--color-border)] rounded-xl p-4 bg-[var(--color-bg)]/70">
                             <p className="font-semibold text-[var(--color-text-main)] mb-1">说明</p>
-                            <p>管理员可管理题库、覆盖答案；普通用户可练习、收藏与记录错题。所有登录信息仅保存在本地。</p>
+                            <p>管理员可管理题库、覆盖答案；普通用户可练习、收藏与记录错题。留言与升级日志支持云端同步。</p>
                         </div>
                     </div>
                 </div>

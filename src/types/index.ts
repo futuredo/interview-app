@@ -35,6 +35,31 @@ export interface MessageBoardItem {
     createdAt: string;
 }
 
+export interface ChangelogItem {
+    id: string;
+    title: string;
+    content: string;
+    createdAt: string;
+    updatedAt?: string;
+}
+
+export interface FeatureRequestItem {
+    id: string;
+    title: string;
+    content: string;
+    contact: string;
+    status: 'open' | 'planned' | 'done';
+    createdAt: string;
+}
+
+export interface DiscussionItem {
+    id: string;
+    topic: string;
+    content: string;
+    contact: string;
+    createdAt: string;
+}
+
 export interface AuthUser {
     name: string;
     role: 'user' | 'admin';
@@ -115,6 +140,7 @@ export interface UserState {
     saveUserNote: (questionId: string, answer: string) => void;
     setChallengeConfig: (config: ChallengeConfig) => void;
     addMessage: (contact: string, content: string) => void;
+    setMessageBoard: (messages: MessageBoardItem[]) => void;
     removeMessage: (id: string) => void;
     clearMessages: () => void;
     setProfile: (profile: UserProfile) => void;

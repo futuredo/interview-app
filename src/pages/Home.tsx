@@ -5,9 +5,10 @@ import type { Question } from '../types';
 import { WordCloud } from '../components/WordCloud';
 import { Link } from 'react-router-dom';
 import { useStore } from '../store/useStore';
+import { addMessageRemote, fetchChangelog, fetchMessages, seedChangelogIfEmpty } from '../utils/supabaseApi';
 
 export const Home: React.FC = () => {
-    const { messageBoard, addMessage, questionBank } = useStore();
+    const { messageBoard, setMessageBoard, questionBank } = useStore();
 
     const getRandomQuestions = useCallback(() => {
         if (!questionBank.length) return [] as Question[];
@@ -19,10 +20,32 @@ export const Home: React.FC = () => {
     const [isAnimating, setIsAnimating] = useState(false);
     const [contact, setContact] = useState('');
     const [messageDraft, setMessageDraft] = useState('');
+    const [changelog, setChangelog] = useState<Array<{ id: string; title: string; content: string; createdAt: string; updatedAt?: string }>>([]);
+    const [loadingMessages, setLoadingMessages] = useState(false);
+    const [loadingLogs, setLoadingLogs] = useState(false);
 
     useEffect(() => {
         setDisplayedQuestions(getRandomQuestions());
     }, [getRandomQuestions]);
+
+    useEffect(() => {
+        let active = true;
+        const loadData = async () => {
+            setLoadingMessages(true);
+            setLoadingLogs(true);
+            await seedChangelogIfEmpty();
+            const [messages, logs] = await Promise.all([fetchMessages(), fetchChangelog()]);
+            if (!active) return;
+            setMessageBoard(messages);
+            setChangelog(logs);
+            setLoadingMessages(false);
+            setLoadingLogs(false);
+        };
+        loadData();
+        return () => {
+            active = false;
+        };
+    }, [setMessageBoard]);
 
     const refreshQuestions = useCallback(() => {
         setIsAnimating(true);
@@ -30,13 +53,19 @@ export const Home: React.FC = () => {
         setTimeout(() => setIsAnimating(false), 500);
     }, [getRandomQuestions]);
 
-    const handleSaveMessage = () => {
+    const handleSaveMessage = async () => {
         const trimmedContact = contact.trim();
         const trimmedMessage = messageDraft.trim();
         if (!trimmedContact || !trimmedMessage) return;
-        addMessage(trimmedContact, trimmedMessage);
-        setContact('');
-        setMessageDraft('');
+        try {
+            await addMessageRemote(trimmedContact, trimmedMessage);
+            const messages = await fetchMessages();
+            setMessageBoard(messages);
+            setContact('');
+            setMessageDraft('');
+        } catch {
+            // ignore error
+        }
     };
 
     const danmuItems = useMemo(() => messageBoard.slice(0, 20), [messageBoard]);
@@ -197,7 +226,7 @@ export const Home: React.FC = () => {
                                 <div className="text-xs text-white/70 flex flex-col gap-2">
                                     <div className="flex items-center gap-2">
                                         <MessageCircle className="w-4 h-4" />
-                                        留言会在审核后自动展示，最新 20 条参与弹幕
+                                        留言实时同步展示，最新 20 条参与弹幕
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <UserRound className="w-4 h-4" />
@@ -234,7 +263,9 @@ export const Home: React.FC = () => {
                             </div>
 
                             <div className="flex-1 max-h-[360px] overflow-y-auto pr-1 space-y-3">
-                                {boardList.length === 0 ? (
+                                {loadingMessages ? (
+                                    <div className="text-sm text-white/70">留言同步中...</div>
+                                ) : boardList.length === 0 ? (
                                     <div className="text-sm text-white/70">暂无留言，快来占领弹幕首条吧～</div>
                                 ) : (
                                     boardList.map((item, index) => (
@@ -252,6 +283,37 @@ export const Home: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            </section>
+
+            {/* Changelog */}
+            <section className="surface-card p-6 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-[var(--color-text-main)]">升级日志</h2>
+                        <p className="text-sm text-[var(--color-text-secondary)]">多人留言与网络同步已上线</p>
+                    </div>
+                    <span className="text-xs px-3 py-1 rounded-full bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-secondary)]">
+                        云端同步
+                    </span>
+                </div>
+                {loadingLogs ? (
+                    <div className="text-sm text-[var(--color-text-secondary)]">升级日志加载中...</div>
+                ) : changelog.length === 0 ? (
+                    <div className="text-sm text-[var(--color-text-secondary)]">暂无升级日志</div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {changelog.map((log) => (
+                            <div key={log.id} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/60 p-4">
+                                <div className="text-xs text-[var(--color-text-secondary)] flex items-center justify-between">
+                                    <span>{new Date(log.createdAt).toLocaleString()}</span>
+                                    {log.updatedAt && <span>更新：{new Date(log.updatedAt).toLocaleDateString()}</span>}
+                                </div>
+                                <div className="mt-2 font-semibold text-[var(--color-text-main)]">{log.title}</div>
+                                <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{log.content}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </section>
         </div>
     );

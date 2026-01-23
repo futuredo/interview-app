@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.52.0",
     "@types/d3-cloud": "^1.2.9",
     "@types/prismjs": "^1.26.5",
     "clsx": "^2.1.1",

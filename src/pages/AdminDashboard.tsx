@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import {
@@ -18,12 +18,24 @@ import {
 import type { Question } from '../types';
 import { parseContentWithCode } from '../utils/parseContentWithCode';
 import { extractQuestionSection } from '../utils/questionContent';
+import {
+    addChangelog,
+    clearMessagesRemote,
+    fetchChangelog,
+    fetchMessages,
+    fetchPageViews,
+    removeChangelog,
+    removeMessageRemote,
+    seedChangelogIfEmpty,
+    updateChangelog,
+    updateMessageRemote,
+} from '../utils/supabaseApi';
 
 export const AdminDashboard: React.FC = () => {
     const {
+        authUser,
         messageBoard,
-        removeMessage,
-        clearMessages,
+        setMessageBoard,
         adminAnswerOverrides,
         setAdminAnswer,
         questionBank,
@@ -47,8 +59,45 @@ export const AdminDashboard: React.FC = () => {
     const [isEditingExisting, setIsEditingExisting] = useState(false);
     const [savingQuestion, setSavingQuestion] = useState(false);
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+    const [loadingMessages, setLoadingMessages] = useState(false);
+    const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+    const [editingMessageContact, setEditingMessageContact] = useState('');
+    const [editingMessageContent, setEditingMessageContent] = useState('');
+    const [savingMessageId, setSavingMessageId] = useState<string | null>(null);
+    const [changelog, setChangelog] = useState<Array<{ id: string; title: string; content: string; createdAt: string; updatedAt?: string }>>([]);
+    const [logTitle, setLogTitle] = useState('');
+    const [logContent, setLogContent] = useState('');
+    const [editingLogId, setEditingLogId] = useState<string | null>(null);
+    const [pageviewStats, setPageviewStats] = useState<{ total: number; today: number; pathCounts: Array<{ path: string; count: number }> }>({
+        total: 0,
+        today: 0,
+        pathCounts: [],
+    });
 
     const overrideCount = Object.keys(adminAnswerOverrides).length;
+    const isSuperAdmin = authUser?.username === '1561473324';
+
+    useEffect(() => {
+        let active = true;
+        const loadRemoteData = async () => {
+            setLoadingMessages(true);
+            await seedChangelogIfEmpty();
+            const [messages, logs, views] = await Promise.all([
+                fetchMessages(),
+                fetchChangelog(),
+                fetchPageViews(),
+            ]);
+            if (!active) return;
+            setMessageBoard(messages);
+            setChangelog(logs);
+            setPageviewStats(views);
+            setLoadingMessages(false);
+        };
+        loadRemoteData();
+        return () => {
+            active = false;
+        };
+    }, [setMessageBoard]);
 
     const filteredQuestions = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
@@ -181,6 +230,97 @@ export const AdminDashboard: React.FC = () => {
         });
     };
 
+    const handleStartEditMessage = (id: string, contact: string, content: string) => {
+        setEditingMessageId(id);
+        setEditingMessageContact(contact);
+        setEditingMessageContent(content);
+    };
+
+    const handleCancelEditMessage = () => {
+        setEditingMessageId(null);
+        setEditingMessageContact('');
+        setEditingMessageContent('');
+    };
+
+    const handleSaveMessage = async () => {
+        if (!isSuperAdmin) return;
+        if (!editingMessageId) return;
+        const trimmedContact = editingMessageContact.trim();
+        const trimmedContent = editingMessageContent.trim();
+        if (!trimmedContact || !trimmedContent) return;
+        setSavingMessageId(editingMessageId);
+        try {
+            await updateMessageRemote(editingMessageId, trimmedContact, trimmedContent);
+            const messages = await fetchMessages();
+            setMessageBoard(messages);
+            handleCancelEditMessage();
+        } catch {
+            // ignore
+        }
+        setSavingMessageId(null);
+    };
+
+    const handleDeleteMessage = async (id: string) => {
+        if (!isSuperAdmin) return;
+        try {
+            await removeMessageRemote(id);
+            const messages = await fetchMessages();
+            setMessageBoard(messages);
+        } catch {
+            // ignore
+        }
+    };
+
+    const handleClearMessages = async () => {
+        if (!isSuperAdmin) return;
+        try {
+            await clearMessagesRemote();
+            const messages = await fetchMessages();
+            setMessageBoard(messages);
+        } catch {
+            // ignore
+        }
+    };
+
+    const handleAddOrUpdateLog = async () => {
+        if (!isSuperAdmin) return;
+        const trimmedTitle = logTitle.trim();
+        const trimmedContent = logContent.trim();
+        if (!trimmedTitle || !trimmedContent) return;
+        try {
+            if (editingLogId) {
+                await updateChangelog(editingLogId, trimmedTitle, trimmedContent);
+            } else {
+                await addChangelog(trimmedTitle, trimmedContent);
+            }
+            const logs = await fetchChangelog();
+            setChangelog(logs);
+            setLogTitle('');
+            setLogContent('');
+            setEditingLogId(null);
+        } catch {
+            // ignore
+        }
+    };
+
+    const handleEditLog = (id: string, title: string, content: string) => {
+        if (!isSuperAdmin) return;
+        setEditingLogId(id);
+        setLogTitle(title);
+        setLogContent(content);
+    };
+
+    const handleDeleteLog = async (id: string) => {
+        if (!isSuperAdmin) return;
+        try {
+            await removeChangelog(id);
+            const logs = await fetchChangelog();
+            setChangelog(logs);
+        } catch {
+            // ignore
+        }
+    };
+
     const renderPreview = () => {
         if (!selectedQuestion) return null;
         const previewContent = previewMode === 'override' ? currentDraft : selectedQuestion.content;
@@ -245,9 +385,9 @@ export const AdminDashboard: React.FC = () => {
                         <MessageSquare className="w-4 h-4" />
                         当前留言 {messageBoard.length} 条
                     </div>
-                    {messageBoard.length > 0 && (
+                    {isSuperAdmin && messageBoard.length > 0 && (
                         <button
-                            onClick={clearMessages}
+                            onClick={handleClearMessages}
                             className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)]"
                         >
                             <Trash2 className="w-4 h-4" />
@@ -256,27 +396,206 @@ export const AdminDashboard: React.FC = () => {
                     )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[360px] overflow-y-auto pr-1">
-                    {messageBoard.length === 0 ? (
+                    {loadingMessages ? (
+                        <div className="text-sm text-[var(--color-text-secondary)]">留言同步中...</div>
+                    ) : messageBoard.length === 0 ? (
                         <div className="text-sm text-[var(--color-text-secondary)]">暂无留言</div>
                     ) : (
                         messageBoard.map((item) => (
                             <div key={item.id} className="border border-[var(--color-border)] rounded-xl p-4 bg-[var(--color-bg)]/40">
                                 <div className="text-xs text-[var(--color-text-secondary)] flex items-center justify-between">
                                     <span>{new Date(item.createdAt).toLocaleString()}</span>
-                                    <button
-                                        onClick={() => removeMessage(item.id)}
-                                        className="text-red-500 hover:text-red-600 text-xs"
-                                    >
-                                        删除
-                                    </button>
+                                    {isSuperAdmin && (
+                                        <div className="flex items-center gap-3 text-xs">
+                                            {editingMessageId === item.id ? (
+                                                <button
+                                                    onClick={handleSaveMessage}
+                                                    className="text-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                                                    disabled={savingMessageId === item.id}
+                                                >
+                                                    保存
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleStartEditMessage(item.id, item.contact, item.content)}
+                                                    className="text-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                                                >
+                                                    编辑
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleDeleteMessage(item.id)}
+                                                className="text-red-500 hover:text-red-600"
+                                            >
+                                                删除
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="mt-2 font-semibold text-[var(--color-text-main)]">{item.contact}</div>
-                                <p className="text-sm text-[var(--color-text-secondary)] mt-1">{item.content}</p>
+                                {isSuperAdmin && editingMessageId === item.id ? (
+                                    <div className="mt-3 flex flex-col gap-2">
+                                        <input
+                                            value={editingMessageContact}
+                                            onChange={(e) => setEditingMessageContact(e.target.value)}
+                                            className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
+                                        />
+                                        <textarea
+                                            value={editingMessageContent}
+                                            onChange={(e) => setEditingMessageContent(e.target.value)}
+                                            className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] min-h-[80px]"
+                                        />
+                                        <button
+                                            onClick={handleCancelEditMessage}
+                                            className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] w-fit"
+                                        >
+                                            取消
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="mt-2 font-semibold text-[var(--color-text-main)]">{item.contact}</div>
+                                        <p className="text-sm text-[var(--color-text-secondary)] mt-1">{item.content}</p>
+                                    </>
+                                )}
                             </div>
                         ))
                     )}
                 </div>
             </div>
+
+            {isSuperAdmin ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="surface-card p-6 flex flex-col gap-4">
+                    <div className="flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-emerald-500" />
+                        <h2 className="text-xl font-semibold text-[var(--color-text-main)]">浏览数据</h2>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-[var(--color-text-secondary)]">近 500 次访问</span>
+                        <span className="text-2xl font-bold text-[var(--color-text-main)]">{pageviewStats.total}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-[var(--color-text-secondary)]">今日访问</span>
+                        <span className="text-lg font-semibold text-[var(--color-text-main)]">{pageviewStats.today}</span>
+                    </div>
+                    <div className="text-xs text-[var(--color-text-secondary)]">热门路径</div>
+                    <div className="space-y-2">
+                        {pageviewStats.pathCounts.length === 0 ? (
+                            <div className="text-sm text-[var(--color-text-secondary)]">暂无统计</div>
+                        ) : (
+                            pageviewStats.pathCounts.map((item) => (
+                                <div key={item.path} className="flex items-center justify-between text-sm">
+                                    <span className="text-[var(--color-text-main)]">{item.path}</span>
+                                    <span className="text-[var(--color-text-secondary)]">{item.count}</span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                <div className="surface-card p-6 flex flex-col gap-4 lg:col-span-2">
+                    <div className="flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-purple-500" />
+                        <h2 className="text-xl font-semibold text-[var(--color-text-main)]">升级日志</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-xs text-[var(--color-text-secondary)]">标题</label>
+                            <input
+                                value={logTitle}
+                                onChange={(e) => setLogTitle(e.target.value)}
+                                className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
+                                placeholder="例如：升级日志 · 2026-01-23"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-xs text-[var(--color-text-secondary)]">内容</label>
+                            <textarea
+                                value={logContent}
+                                onChange={(e) => setLogContent(e.target.value)}
+                                className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] min-h-[80px]"
+                                placeholder="支持多人留言，网络同步功能"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleAddOrUpdateLog}
+                            className="btn-primary px-4 py-2 rounded-lg text-sm"
+                        >
+                            {editingLogId ? '保存修改' : '新增日志'}
+                        </button>
+                        {editingLogId && (
+                            <button
+                                onClick={() => {
+                                    setEditingLogId(null);
+                                    setLogTitle('');
+                                    setLogContent('');
+                                }}
+                                className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)]"
+                            >
+                                取消
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {changelog.length === 0 ? (
+                            <div className="text-sm text-[var(--color-text-secondary)]">暂无升级日志</div>
+                        ) : (
+                            changelog.map((log) => (
+                                <div key={log.id} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/40 p-4">
+                                    <div className="text-xs text-[var(--color-text-secondary)] flex items-center justify-between">
+                                        <span>{new Date(log.createdAt).toLocaleString()}</span>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => handleEditLog(log.id, log.title, log.content)}
+                                                className="text-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                                            >
+                                                编辑
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteLog(log.id)}
+                                                className="text-red-500 hover:text-red-600"
+                                            >
+                                                删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 font-semibold text-[var(--color-text-main)]">{log.title}</div>
+                                    <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{log.content}</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
+            ) : (
+                <div className="surface-card p-6 flex flex-col gap-4">
+                    <div className="flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-purple-500" />
+                        <h2 className="text-xl font-semibold text-[var(--color-text-main)]">升级日志</h2>
+                    </div>
+                    <p className="text-sm text-[var(--color-text-secondary)]">
+                        仅超级管理员可维护升级日志与浏览统计。
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {changelog.length === 0 ? (
+                            <div className="text-sm text-[var(--color-text-secondary)]">暂无升级日志</div>
+                        ) : (
+                            changelog.map((log) => (
+                                <div key={log.id} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/40 p-4">
+                                    <div className="text-xs text-[var(--color-text-secondary)] flex items-center justify-between">
+                                        <span>{new Date(log.createdAt).toLocaleString()}</span>
+                                    </div>
+                                    <div className="mt-2 font-semibold text-[var(--color-text-main)]">{log.title}</div>
+                                    <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{log.content}</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
 
             {deleteConfirmId && (
                 <div className="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded-lg flex items-center justify-between">
