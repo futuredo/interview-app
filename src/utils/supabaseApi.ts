@@ -285,3 +285,39 @@ export const fetchPageViews = async () => {
 
     return { total, today, pathCounts };
 };
+
+export const fetchUserProfile = async (username: string) => {
+    const { data, error } = await supabase
+        .from('user_profiles')
+        .select('username, nickname, avatar_url, updated_at')
+        .eq('username', username)
+        .single();
+
+    if (error) {
+        console.error('加载用户资料失败', error);
+        return null;
+    }
+
+    return {
+        username: data.username,
+        nickname: data.nickname,
+        avatarUrl: data.avatar_url ?? '',
+        updatedAt: data.updated_at,
+    };
+};
+
+export const upsertUserProfile = async (username: string, nickname: string, avatarUrl: string) => {
+    const { error } = await supabase
+        .from('user_profiles')
+        .upsert({
+            username,
+            nickname,
+            avatar_url: avatarUrl || null,
+            updated_at: new Date().toISOString(),
+        }, { onConflict: 'username' });
+
+    if (error) {
+        console.error('保存用户资料失败', error);
+        throw error;
+    }
+};

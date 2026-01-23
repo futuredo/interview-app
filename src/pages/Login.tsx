@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ShieldCheck, KeyRound, Lock, Sparkles, CheckCircle2, Crown, Activity, ArrowRight } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { fetchUserProfile } from '../utils/supabaseApi';
 
 const demoAccounts = [
     { username: 'admin_root', password: 'Admin#2024', name: '系统管理员', role: 'admin' as const },
@@ -33,12 +34,17 @@ export const Login: React.FC = () => {
         }
     }, [authUser, fromPath, navigate]);
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const trimmedUser = username.trim();
         if (trimmedUser === superAdminCredential.username && password === superAdminCredential.password) {
             login(superAdminCredential.name, superAdminCredential.role, superAdminCredential.username);
-            setProfile({ ...profile, nickname: superAdminCredential.name });
+            const remoteProfile = await fetchUserProfile(superAdminCredential.username);
+            if (remoteProfile) {
+                setProfile({ nickname: remoteProfile.nickname, avatarUrl: remoteProfile.avatarUrl });
+            } else {
+                setProfile({ ...profile, nickname: superAdminCredential.name });
+            }
             setError('');
             navigate(fromPath || '/', { replace: true });
             return;

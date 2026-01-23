@@ -6,7 +6,7 @@
 1. 登录 Supabase 控制台，进入项目。
 2. 打开左侧 SQL Editor。
 3. 粘贴并执行下方 SQL。
-4. 执行成功后，在 Table Editor 中确认 messages / changelog / pageviews / feature_requests / discussions 已创建。
+4. 执行成功后，在 Table Editor 中确认 messages / changelog / pageviews / feature_requests / discussions / user_profiles 已创建。
 5. 在 Project Settings → API 中确认 anon key 与项目 URL，确保已写入本项目 .env。
 
 ## SQL（建表 + RLS 策略）
@@ -56,6 +56,14 @@ create table if not exists discussions (
   created_at timestamptz not null default now()
 );
 
+-- 用户资料表（用于超级管理员云端资料同步）
+create table if not exists user_profiles (
+  username text primary key,
+  nickname text not null,
+  avatar_url text,
+  updated_at timestamptz not null default now()
+);
+
 -- 开放读写（匿名 key 可用）。如需更严格的权限，请改用 auth 用户策略。
 alter table messages enable row level security;
 create policy "public read messages" on messages for select using (true);
@@ -83,6 +91,11 @@ alter table discussions enable row level security;
 create policy "public read discussions" on discussions for select using (true);
 create policy "public write discussions" on discussions for insert with check (true);
 create policy "public delete discussions" on discussions for delete using (true);
+
+alter table user_profiles enable row level security;
+create policy "public read user_profiles" on user_profiles for select using (true);
+create policy "public upsert user_profiles" on user_profiles for insert with check (true);
+create policy "public update user_profiles" on user_profiles for update using (true) with check (true);
 ```
 
 说明：

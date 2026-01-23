@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
+import { fetchUserProfile, upsertUserProfile } from '../utils/supabaseApi';
 import { Trophy, Calendar, Target, Zap, Settings, NotebookPen, Trash2, Activity, Layers, Flame, Star, Camera } from 'lucide-react';
 
 export const Profile: React.FC = () => {
@@ -24,11 +25,23 @@ export const Profile: React.FC = () => {
     const [logDraft, setLogDraft] = useState('');
     const [nicknameInput, setNicknameInput] = useState(profile.nickname);
     const [avatarInput, setAvatarInput] = useState(profile.avatarUrl);
+    const isSuperAdmin = authUser?.username === '1561473324';
 
     useEffect(() => {
         setNicknameInput(profile.nickname);
         setAvatarInput(profile.avatarUrl);
     }, [profile]);
+
+    useEffect(() => {
+        const loadRemoteProfile = async () => {
+            if (!isSuperAdmin || !authUser?.username) return;
+            const remote = await fetchUserProfile(authUser.username);
+            if (remote) {
+                setProfile({ nickname: remote.nickname, avatarUrl: remote.avatarUrl });
+            }
+        };
+        loadRemoteProfile();
+    }, [authUser?.username, isSuperAdmin, setProfile]);
 
     const totalQuestions = questionBank.length;
     const progress = Math.round((completedQuestions.length / totalQuestions) * 100);
@@ -52,11 +65,15 @@ export const Profile: React.FC = () => {
     const favoriteCount = favorites.length;
     const wrongCount = wrongQuestions.length;
 
-    const handleSaveProfile = () => {
-        setProfile({
+    const handleSaveProfile = async () => {
+        const nextProfile = {
             nickname: nicknameInput.trim() || profile.nickname,
             avatarUrl: avatarInput.trim(),
-        });
+        };
+        setProfile(nextProfile);
+        if (isSuperAdmin && authUser?.username) {
+            await upsertUserProfile(authUser.username, nextProfile.nickname, nextProfile.avatarUrl);
+        }
     };
 
     return (
