@@ -215,6 +215,17 @@ export const addDiscussionReply = async (discussionId: string, nickname: string,
     }
 };
 
+export const removeDiscussionReply = async (id: string) => {
+    const { error } = await supabase
+        .from('discussion_replies')
+        .delete()
+        .eq('id', id);
+    if (error) {
+        console.error('删除讨论回复失败', error);
+        throw error;
+    }
+};
+
 export const removeDiscussion = async (id: string) => {
     const { error } = await supabase
         .from('discussions')

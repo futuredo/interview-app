@@ -11,6 +11,7 @@ import {
     fetchFeatureRequests,
     fetchMessages,
     removeDiscussion,
+    removeDiscussionReply,
     removeFeatureRequest,
 } from '../utils/supabaseApi';
 
@@ -138,6 +139,13 @@ export const Community: React.FC = () => {
         await removeDiscussion(id);
         const items = await fetchDiscussions();
         setDiscussions(items);
+    };
+
+    const handleRemoveReply = async (id: string) => {
+        if (!isSuperAdmin) return;
+        await removeDiscussionReply(id);
+        const replies = await fetchDiscussionReplies();
+        setDiscussionReplies(replies);
     };
 
     return (
@@ -349,7 +357,17 @@ export const Community: React.FC = () => {
                                             <div key={reply.id} className="text-xs text-[var(--color-text-secondary)]">
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-semibold text-[var(--color-text-main)]">{reply.nickname}</span>
-                                                    <span>{new Date(reply.createdAt).toLocaleString()}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span>{new Date(reply.createdAt).toLocaleString()}</span>
+                                                        {isSuperAdmin && (
+                                                            <button
+                                                                onClick={() => handleRemoveReply(reply.id)}
+                                                                className="text-red-500"
+                                                            >
+                                                                删除
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{reply.content}</p>
                                             </div>

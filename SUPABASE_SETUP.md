@@ -104,6 +104,7 @@ create policy "public delete discussions" on discussions for delete using (true)
 alter table discussion_replies enable row level security;
 create policy "public read discussion_replies" on discussion_replies for select using (true);
 create policy "public write discussion_replies" on discussion_replies for insert with check (true);
+create policy "public delete discussion_replies" on discussion_replies for delete using (true);
 
 alter table user_profiles enable row level security;
 create policy "public read user_profiles" on user_profiles for select using (true);
