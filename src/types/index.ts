@@ -60,6 +60,14 @@ export interface DiscussionItem {
     createdAt: string;
 }
 
+export interface DiscussionReply {
+    id: string;
+    discussionId: string;
+    nickname: string;
+    content: string;
+    createdAt: string;
+}
+
 export interface AuthUser {
     name: string;
     role: 'user' | 'admin';

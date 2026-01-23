@@ -3,8 +3,10 @@ import { MessageSquare, Send, ClipboardList, Users, RefreshCw, Shield } from 'lu
 import { useStore } from '../store/useStore';
 import {
     addDiscussion,
+    addDiscussionReply,
     addFeatureRequest,
     addMessageRemote,
+    fetchDiscussionReplies,
     fetchDiscussions,
     fetchFeatureRequests,
     fetchMessages,
@@ -30,7 +32,11 @@ export const Community: React.FC = () => {
     const [discussionContent, setDiscussionContent] = useState('');
     const [discussionContact, setDiscussionContact] = useState('');
     const [discussions, setDiscussions] = useState<Array<{ id: string; topic: string; content: string; contact: string; createdAt: string }>>([]);
+    const [discussionReplies, setDiscussionReplies] = useState<Array<{ id: string; discussionId: string; nickname: string; content: string; createdAt: string }>>([]);
     const [loadingDiscussions, setLoadingDiscussions] = useState(false);
+    const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    const [replyNickname, setReplyNickname] = useState('');
+    const [replyContent, setReplyContent] = useState('');
 
     const boardList = useMemo(() => messageBoard.slice(0, 50), [messageBoard]);
 
@@ -38,14 +44,16 @@ export const Community: React.FC = () => {
         setLoadingMessages(true);
         setLoadingFeatures(true);
         setLoadingDiscussions(true);
-        const [messages, features, discussionData] = await Promise.all([
+        const [messages, features, discussionData, replies] = await Promise.all([
             fetchMessages(),
             fetchFeatureRequests(),
             fetchDiscussions(),
+            fetchDiscussionReplies(),
         ]);
         setMessageBoard(messages);
         setFeatureRequests(features);
         setDiscussions(discussionData);
+        setDiscussionReplies(replies);
         setLoadingMessages(false);
         setLoadingFeatures(false);
         setLoadingDiscussions(false);
@@ -91,6 +99,32 @@ export const Community: React.FC = () => {
         setDiscussionContent('');
         setDiscussionContact('');
     };
+
+    const handleAddReply = async () => {
+        if (!replyingTo) return;
+        const nickname = replyNickname.trim();
+        const content = replyContent.trim();
+        if (!nickname || !content) return;
+        await addDiscussionReply(replyingTo, nickname, content);
+        const replies = await fetchDiscussionReplies();
+        setDiscussionReplies(replies);
+        setReplyingTo(null);
+        setReplyNickname('');
+        setReplyContent('');
+    };
+
+    const replyMap = useMemo(() => {
+        return discussionReplies.reduce((acc: Record<string, Array<{ id: string; nickname: string; content: string; createdAt: string }>>, reply) => {
+            if (!acc[reply.discussionId]) acc[reply.discussionId] = [];
+            acc[reply.discussionId].push({
+                id: reply.id,
+                nickname: reply.nickname,
+                content: reply.content,
+                createdAt: reply.createdAt,
+            });
+            return acc;
+        }, {});
+    }, [discussionReplies]);
 
     const handleRemoveFeature = async (id: string) => {
         if (!isSuperAdmin) return;
@@ -278,6 +312,50 @@ export const Community: React.FC = () => {
                                 <div className="mt-2 font-semibold text-[var(--color-text-main)]">{item.topic}</div>
                                 <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{item.content}</p>
                                 <p className="text-xs text-[var(--color-text-secondary)] mt-2">发起人：{item.contact}</p>
+
+                                <div className="mt-4 flex items-center justify-between">
+                                    <span className="text-xs text-[var(--color-text-secondary)]">
+                                        回复 {replyMap[item.id]?.length ?? 0} 条
+                                    </span>
+                                    <button
+                                        onClick={() => setReplyingTo(replyingTo === item.id ? null : item.id)}
+                                        className="text-xs text-[var(--color-primary)]"
+                                    >
+                                        {replyingTo === item.id ? '收起回复' : '回复此帖'}
+                                    </button>
+                                </div>
+
+                                {replyingTo === item.id && (
+                                    <div className="mt-3 grid grid-cols-1 gap-2">
+                                        <input
+                                            value={replyNickname}
+                                            onChange={(e) => setReplyNickname(e.target.value)}
+                                            placeholder="你的昵称"
+                                            className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
+                                        />
+                                        <textarea
+                                            value={replyContent}
+                                            onChange={(e) => setReplyContent(e.target.value)}
+                                            placeholder="你的回复内容"
+                                            className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] min-h-[90px]"
+                                        />
+                                        <button onClick={handleAddReply} className="btn-primary w-fit">提交回复</button>
+                                    </div>
+                                )}
+
+                                {replyMap[item.id] && replyMap[item.id].length > 0 && (
+                                    <div className="mt-4 space-y-2 border-l border-[var(--color-border)] pl-3">
+                                        {replyMap[item.id].map((reply) => (
+                                            <div key={reply.id} className="text-xs text-[var(--color-text-secondary)]">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-semibold text-[var(--color-text-main)]">{reply.nickname}</span>
+                                                    <span>{new Date(reply.createdAt).toLocaleString()}</span>
+                                                </div>
+                                                <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{reply.content}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))
                     )}

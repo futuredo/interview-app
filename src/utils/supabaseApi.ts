@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import type { MessageBoardItem, ChangelogItem, FeatureRequestItem, DiscussionItem } from '../types';
+import type { MessageBoardItem, ChangelogItem, FeatureRequestItem, DiscussionItem, DiscussionReply } from '../types';
 
 const mapMessage = (row: any): MessageBoardItem => ({
     id: row.id,
@@ -30,6 +30,14 @@ const mapDiscussion = (row: any): DiscussionItem => ({
     topic: row.topic,
     content: row.content,
     contact: row.contact,
+    createdAt: row.created_at,
+});
+
+const mapDiscussionReply = (row: any): DiscussionReply => ({
+    id: row.id,
+    discussionId: row.discussion_id,
+    nickname: row.nickname,
+    content: row.content,
     createdAt: row.created_at,
 });
 
@@ -176,6 +184,33 @@ export const addDiscussion = async (topic: string, content: string, contact: str
     });
     if (error) {
         console.error('新增讨论失败', error);
+        throw error;
+    }
+};
+
+export const fetchDiscussionReplies = async (): Promise<DiscussionReply[]> => {
+    const { data, error } = await supabase
+        .from('discussion_replies')
+        .select('id, discussion_id, nickname, content, created_at')
+        .order('created_at', { ascending: true })
+        .limit(300);
+
+    if (error) {
+        console.error('加载讨论回复失败', error);
+        return [];
+    }
+
+    return (data ?? []).map(mapDiscussionReply);
+};
+
+export const addDiscussionReply = async (discussionId: string, nickname: string, content: string) => {
+    const { error } = await supabase.from('discussion_replies').insert({
+        discussion_id: discussionId,
+        nickname,
+        content,
+    });
+    if (error) {
+        console.error('新增讨论回复失败', error);
         throw error;
     }
 };
