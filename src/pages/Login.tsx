@@ -13,7 +13,7 @@ const demoAccounts = [
 
 const superAdminCredential = {
     username: '1561473324',
-    password: '1561473324',
+    password: 's20050208',
     name: '超级管理员',
     role: 'admin' as const,
 };
