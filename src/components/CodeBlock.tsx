@@ -14,24 +14,22 @@ interface CodeBlockProps {
 }
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'csharp' }) => {
+    const codeRef = React.useRef<HTMLElement>(null);
+
     useEffect(() => {
-        Prism.highlightAll();
+        if (codeRef.current) {
+            Prism.highlightElement(codeRef.current);
+        }
     }, [code, language]);
-
-    // Simple formatter to add newlines after semicolons if the code is a single line
-    // This is a heuristic to fix the "one long line" issue from the JSON data
-    const formatCode = (input: string) => {
-        if (input.includes('\n')) return input; // Already has newlines
-        return input.replace(/;/g, ';\n').replace(/{/g, '{\n').replace(/}/g, '\n}');
-    };
-
-    const formattedCode = formatCode(code);
 
     return (
         <div className="relative group rounded-lg overflow-hidden my-4">
             <pre className="!bg-[#1e293b] !p-4 !m-0 overflow-x-auto rounded-lg">
-                <code className={`language-${language} !text-[#e2e8f0] !bg-transparent !p-0 font-mono text-sm`}>
-                    {formattedCode}
+                <code 
+                    ref={codeRef}
+                    className={`language-${language} !text-[#e2e8f0] !bg-transparent !p-0 font-mono text-sm`}
+                >
+                    {code}
                 </code>
             </pre>
         </div>

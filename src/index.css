@@ -450,3 +450,19 @@ pre {
   /* VS Code Dark */
   border-radius: 0.5rem;
 }
+
+/* Enhanced syntax highlighting for comments with Chinese characters */
+pre code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace, 'Noto Sans SC' !important;
+  line-height: 1.8 !important;
+  display: block !important;
+}
+
+/* Ensure Chinese characters in comments are properly styled */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #6A9955 !important; /* VS Code comment green */
+  font-style: normal;
+}
