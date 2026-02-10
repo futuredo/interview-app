@@ -36,6 +36,7 @@ export const Challenge: React.FC = () => {
     const [activeConfig, setActiveConfig] = useState(challengeConfig);
     const [exitModalOpen, setExitModalOpen] = useState(false);
     const [answerDrafts, setAnswerDrafts] = useState<Record<string, string>>({});
+    const [reviewRating, setReviewRating] = useState<'none' | 'wrong' | 'mastered'>('none');
 
     const getTitleNumber = (title: string): number => {
         const match = title.match(/^(\d+)\./);
@@ -190,6 +191,42 @@ export const Challenge: React.FC = () => {
         e.preventDefault();
         e.stopPropagation();
         setShowAnswer(true);
+        setReviewRating('none');
+    };
+
+    const recordCurrentRating = (rated: boolean) => {
+        const activeQuestion = questions[currentIndex];
+        incrementPracticeCount(activeQuestion.id);
+        if (rated) {
+            setScore((s) => s + 1);
+            completeQuestion(activeQuestion.id);
+        } else {
+            markAsWrong(activeQuestion.id);
+        }
+    };
+
+    const handleReviewNavigate = (direction: 'prev' | 'next') => {
+        if (reviewRating === 'wrong') {
+            recordCurrentRating(false);
+        } else if (reviewRating === 'mastered') {
+            recordCurrentRating(true);
+        }
+        setReviewRating('none');
+
+        if (direction === 'prev') {
+            if (currentIndex === 0) return;
+            setCurrentIndex((prev) => Math.max(prev - 1, 0));
+            setShowAnswer(true);
+            return;
+        }
+
+        if (currentIndex >= questions.length - 1) {
+            handleComplete();
+            return;
+        }
+
+        setCurrentIndex((prev) => Math.min(prev + 1, questions.length - 1));
+        setShowAnswer(true);
     };
 
     return (
@@ -287,7 +324,11 @@ export const Challenge: React.FC = () => {
                                 <div className="flex justify-end">
                                     <button
                                         type="button"
-                                        onClick={() => saveUserNote(currentQuestion.id, userAnswer.trim())}
+                                        onClick={() => {
+                                            saveUserNote(currentQuestion.id, userAnswer.trim());
+                                            setShowAnswer(true);
+                                            setReviewRating('none');
+                                        }}
                                         className="btn-primary px-4 py-2 rounded-lg"
                                     >
                                         提交答案
@@ -308,33 +349,114 @@ export const Challenge: React.FC = () => {
                     ) : (
                         <div className="animate-fade-in">
                             <div className="prose dark:prose-invert max-w-none mb-8 text-[var(--color-text-main)]">
+                                <h3 className="text-lg font-semibold text-[var(--color-primary)] mb-3">题目</h3>
+                                {parseContentWithCode(questionPrompt)}
+                            </div>
+
+                            <div className="mb-8 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/50 p-6">
+                                <h3 className="text-lg font-semibold text-[var(--color-primary)] mb-3">你的答案</h3>
+                                <textarea
+                                    value={userAnswer}
+                                    onChange={(e) => {
+                                        const nextValue = e.target.value;
+                                        setAnswerDrafts((prev) => ({
+                                            ...prev,
+                                            [currentQuestion.id]: nextValue,
+                                        }));
+                                    }}
+                                    className="w-full min-h-[140px] p-4 rounded-xl border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition-all resize-y bg-[var(--color-surface)] text-[var(--color-text-main)] placeholder-[var(--color-text-secondary)]/50"
+                                    placeholder="在这里补充或修改你的答案..."
+                                />
+                                <div className="flex justify-end mt-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => saveUserNote(currentQuestion.id, userAnswer.trim())}
+                                        className="btn-primary px-4 py-2 rounded-lg"
+                                    >
+                                        保存修改
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="prose dark:prose-invert max-w-none mb-8 text-[var(--color-text-main)]">
                                 <h3 className="text-lg font-semibold text-[var(--color-primary)] mb-3">参考答案</h3>
                                 {finalAnswer.trim() ? parseContentWithCode(finalAnswer) : <p className="text-[var(--color-text-secondary)]">暂时没有答案内容。</p>}
                             </div>
-                            {finalAnswer.trim() && (
-                                <div className="mt-4 text-xs text-[var(--color-text-secondary)] break-words">
-                                    （如格式未正常渲染，原始内容预览）
-                                    <div dangerouslySetInnerHTML={{ __html: finalAnswer }} />
-                                </div>
-                            )}
 
-                            <div className="flex flex-col items-center gap-4 pt-8 border-t border-[var(--color-border)]">
-                                <p className="text-[var(--color-text-secondary)] font-medium">这道题你掌握了吗？</p>
-                                <div className="flex gap-4">
+                            <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-[var(--color-border)]">
+                                <div className="flex flex-wrap items-center gap-3">
                                     <button
                                         type="button"
-                                        onClick={() => handleNext(false)}
+                                        onClick={() => setShowAnswer(false)}
                                         className="btn-ghost px-6 py-2"
                                     >
-                                        还需要复习
+                                        返回答题
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => handleNext(true)}
-                                        className="btn-primary px-6 py-2"
+                                        onClick={() => handleReviewNavigate('prev')}
+                                        className="btn-ghost px-6 py-2"
+                                        disabled={currentIndex === 0}
                                     >
-                                        <CheckCircle className="w-4 h-4" />
-                                        完全掌握
+                                        上一个
+                                    </button>
+                                    {currentIndex === questions.length - 1 ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleReviewNavigate('next')}
+                                            className="btn-primary px-6 py-2"
+                                        >
+                                            完成挑战
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleReviewNavigate('next')}
+                                            className="btn-ghost px-6 py-2"
+                                        >
+                                            下一个
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-4">
+                                    <p className="text-[var(--color-text-secondary)] font-medium">这道题你掌握了吗？</p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setReviewRating('wrong')}
+                                            className={`px-4 py-2 rounded-lg border transition-colors ${reviewRating === 'wrong'
+                                                ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+                                                : 'btn-ghost border-[var(--color-border)]'
+                                                }`}
+                                        >
+                                            还需要复习
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setReviewRating('mastered')}
+                                            className={`px-4 py-2 rounded-lg border transition-colors ${reviewRating === 'mastered'
+                                                ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                                                : 'btn-ghost border-[var(--color-border)]'
+                                                }`}
+                                        >
+                                            <CheckCircle className="w-4 h-4" />
+                                            完全掌握
+                                        </button>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (reviewRating === 'wrong') {
+                                                recordCurrentRating(false);
+                                            } else if (reviewRating === 'mastered') {
+                                                recordCurrentRating(true);
+                                            }
+                                            setReviewRating('none');
+                                        }}
+                                        className="btn-primary px-5 py-2"
+                                        disabled={reviewRating === 'none'}
+                                    >
+                                        记录评分
                                     </button>
                                 </div>
                             </div>
