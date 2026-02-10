@@ -146,6 +146,37 @@ export const Home: React.FC = () => {
                 </div>
             </section>
 
+            {/* Changelog */}
+            <section className="surface-card p-6 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-[var(--color-text-main)]">升级日志</h2>
+                        <p className="text-sm text-[var(--color-text-secondary)]">多人留言与网络同步已上线</p>
+                    </div>
+                    <span className="text-xs px-3 py-1 rounded-full bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-secondary)]">
+                        云端同步
+                    </span>
+                </div>
+                {loadingLogs ? (
+                    <div className="text-sm text-[var(--color-text-secondary)]">升级日志加载中...</div>
+                ) : changelog.length === 0 ? (
+                    <div className="text-sm text-[var(--color-text-secondary)]">暂无升级日志</div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {changelog.map((log) => (
+                            <div key={log.id} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/60 p-4">
+                                <div className="text-xs text-[var(--color-text-secondary)] flex items-center justify-between">
+                                    <span>{new Date(log.createdAt).toLocaleString()}</span>
+                                    {log.updatedAt && <span>更新：{new Date(log.updatedAt).toLocaleDateString()}</span>}
+                                </div>
+                                <div className="mt-2 font-semibold text-[var(--color-text-main)]">{log.title}</div>
+                                <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{log.content}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+
             {/* Word Cloud */}
             <section>
                 <WordCloud />
@@ -314,36 +345,6 @@ export const Home: React.FC = () => {
                 </div>
             </section>
 
-            {/* Changelog */}
-            <section className="surface-card p-6 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-2xl font-bold text-[var(--color-text-main)]">升级日志</h2>
-                        <p className="text-sm text-[var(--color-text-secondary)]">多人留言与网络同步已上线</p>
-                    </div>
-                    <span className="text-xs px-3 py-1 rounded-full bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-secondary)]">
-                        云端同步
-                    </span>
-                </div>
-                {loadingLogs ? (
-                    <div className="text-sm text-[var(--color-text-secondary)]">升级日志加载中...</div>
-                ) : changelog.length === 0 ? (
-                    <div className="text-sm text-[var(--color-text-secondary)]">暂无升级日志</div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {changelog.map((log) => (
-                            <div key={log.id} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/60 p-4">
-                                <div className="text-xs text-[var(--color-text-secondary)] flex items-center justify-between">
-                                    <span>{new Date(log.createdAt).toLocaleString()}</span>
-                                    {log.updatedAt && <span>更新：{new Date(log.updatedAt).toLocaleDateString()}</span>}
-                                </div>
-                                <div className="mt-2 font-semibold text-[var(--color-text-main)]">{log.title}</div>
-                                <p className="text-sm text-[var(--color-text-secondary)] mt-1 whitespace-pre-wrap">{log.content}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
         </div>
     );
 };

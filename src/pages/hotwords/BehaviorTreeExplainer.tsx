@@ -163,8 +163,12 @@ export const BehaviorTreeExplainer: React.FC = () => {
     useEffect(() => {
         if (!autoPlay) return undefined;
         const interval = setInterval(() => {
-            tickTree();
-        }, 1500);
+            return (
+                <div className="p-6 max-w-5xl mx-auto space-y-8 mt-8">
+                    <Link to="/hotwords" className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+                        <ArrowLeft className="w-5 h-5 mr-2" />
+                        返回热词列表
+                    </Link>
         return () => clearInterval(interval);
     }, [autoPlay, tickTree]);
 

@@ -161,12 +161,6 @@ export const Workbench: React.FC = () => {
                                     ? parseContentWithCode(finalAnswer)
                                     : <p className="text-[var(--color-text-secondary)]">暂未录入参考答案。</p>}
                             </div>
-                            {finalAnswer.trim() && (
-                                <div className="mt-4 text-xs text-[var(--color-text-secondary)] break-words">
-                                    （如格式未正常渲染，原始内容预览）
-                                    <div dangerouslySetInnerHTML={{ __html: finalAnswer }} />
-                                </div>
-                            )}
                         </div>
                     </div>
 
