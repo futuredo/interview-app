@@ -99,6 +99,7 @@ export const FSMExplainer: React.FC = () => {
                                 </label>
                                 <input 
                                     type="range" min="0" max="30" value={distToPlayer} 
+                                    aria-label="与玩家距离"
                                     onChange={e => setDistToPlayer(Number(e.target.value))}
                                     className="w-full"
                                 />

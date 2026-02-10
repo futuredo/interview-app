@@ -173,6 +173,7 @@ export const Workbench: React.FC = () => {
                                     <button
                                         key={star}
                                         onClick={() => handleRate(star)}
+                                        aria-label={`评分 ${star} 星`}
                                         className={clsx(
                                             "group flex items-center justify-center p-4 rounded-xl border transition-all w-16 bg-[var(--color-surface)] shadow-sm",
                                             currentRating >= star

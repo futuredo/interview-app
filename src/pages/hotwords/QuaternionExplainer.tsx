@@ -13,7 +13,7 @@ const QuaternionExplainer: React.FC = () => {
   
   const handleRotate = (axis: 'x' | 'y' | 'z', val: number) => {
     setRotation(prev => {
-        let next = { ...prev, [axis]: val };
+      const next = { ...prev, [axis]: val };
         
         // Simulating Gimbal Lock Visual Effect
         // If Pitch (X) is 90, Yaw (Y) and Roll (Z) axes align, losing one degree of freedom.
@@ -59,6 +59,7 @@ const QuaternionExplainer: React.FC = () => {
                       <label className="text-xs font-bold text-slate-500">俯仰 Pitch (X) - <span className="text-red-500">红轴</span></label>
                       <input 
                         type="range" min="-180" max="180" value={rotation.x} 
+                        aria-label="俯仰 Pitch"
                         onChange={(e) => handleRotate('x', Number(e.target.value))}
                         className="w-full"
                       />
@@ -67,6 +68,7 @@ const QuaternionExplainer: React.FC = () => {
                       <label className="text-xs font-bold text-slate-500">偏航 Yaw (Y) - <span className="text-green-500">绿轴</span></label>
                       <input 
                         type="range" min="-180" max="180" value={rotation.y} 
+                        aria-label="偏航 Yaw"
                         onChange={(e) => handleRotate('y', Number(e.target.value))}
                          className="w-full"
                       />
@@ -75,6 +77,7 @@ const QuaternionExplainer: React.FC = () => {
                       <label className="text-xs font-bold text-slate-500">翻滚 Roll (Z) - <span className="text-blue-500">蓝轴</span></label>
                       <input 
                         type="range" min="-180" max="180" value={rotation.z} 
+                        aria-label="翻滚 Roll"
                         onChange={(e) => handleRotate('z', Number(e.target.value))}
                          className="w-full"
                       />
@@ -97,12 +100,7 @@ const QuaternionExplainer: React.FC = () => {
           {/* 3D Visualization Wrapper */}
           <div className="col-span-2 bg-slate-900 rounded-xl flex items-center justify-center relative overflow-hidden h-[400px] perspective-1000">
                {/* Grid */}
-               <div className="absolute inset-0 opacity-20 pointer-events-none" 
-                 style={{ 
-                     backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-                     backgroundSize: '40px 40px',
-                 }} 
-               />
+               <div className="absolute inset-0 opacity-20 pointer-events-none quaternion-grid" />
                
                {/* The Airplane Object */}
                <motion.div

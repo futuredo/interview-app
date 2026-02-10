@@ -437,11 +437,13 @@ export const AdminDashboard: React.FC = () => {
                                         <input
                                             value={editingMessageContact}
                                             onChange={(e) => setEditingMessageContact(e.target.value)}
+                                            aria-label="留言联系方式"
                                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
                                         />
                                         <textarea
                                             value={editingMessageContent}
                                             onChange={(e) => setEditingMessageContent(e.target.value)}
+                                            aria-label="留言内容"
                                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] min-h-[80px]"
                                         />
                                         <button
@@ -639,6 +641,7 @@ export const AdminDashboard: React.FC = () => {
                         <select
                             value={difficultyFilter}
                             onChange={(e) => setDifficultyFilter(e.target.value as 'All' | 'Easy' | 'Medium' | 'Hard')}
+                            aria-label="难度筛选"
                             className="flex-1 px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]"
                         >
                             <option value="All">全部难度</option>
@@ -751,8 +754,9 @@ export const AdminDashboard: React.FC = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs text-[var(--color-text-secondary)]">标题</label>
+                                    <label htmlFor="admin-question-title" className="text-xs text-[var(--color-text-secondary)]">标题</label>
                                     <input
+                                        id="admin-question-title"
                                         value={editForm.title}
                                         onChange={(e) => setEditForm((prev) => ({ ...prev, title: e.target.value }))}
                                         className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -760,8 +764,9 @@ export const AdminDashboard: React.FC = () => {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs text-[var(--color-text-secondary)]">难度</label>
+                                    <label htmlFor="admin-question-difficulty" className="text-xs text-[var(--color-text-secondary)]">难度</label>
                                     <select
+                                        id="admin-question-difficulty"
                                         value={editForm.difficulty}
                                         onChange={(e) => setEditForm((prev) => ({ ...prev, difficulty: e.target.value as Question['difficulty'] }))}
                                         className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -773,8 +778,9 @@ export const AdminDashboard: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-1">
-                                <label className="text-xs text-[var(--color-text-secondary)]">标签（逗号分隔）</label>
+                                <label htmlFor="admin-question-tags" className="text-xs text-[var(--color-text-secondary)]">标签（逗号分隔）</label>
                                 <input
+                                    id="admin-question-tags"
                                     value={editForm.tagsInput}
                                     onChange={(e) => setEditForm((prev) => ({ ...prev, tagsInput: e.target.value }))}
                                     className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -782,8 +788,9 @@ export const AdminDashboard: React.FC = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <label className="text-xs text-[var(--color-text-secondary)]">原文链接（可选）</label>
+                                <label htmlFor="admin-question-link" className="text-xs text-[var(--color-text-secondary)]">原文链接（可选）</label>
                                 <input
+                                    id="admin-question-link"
                                     value={editForm.originalLink}
                                     onChange={(e) => setEditForm((prev) => ({ ...prev, originalLink: e.target.value }))}
                                     className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -791,8 +798,9 @@ export const AdminDashboard: React.FC = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <label className="text-xs text-[var(--color-text-secondary)]">题干与答案（支持 HTML / Markdown）</label>
+                                <label htmlFor="admin-question-content" className="text-xs text-[var(--color-text-secondary)]">题干与答案（支持 HTML / Markdown）</label>
                                 <textarea
+                                    id="admin-question-content"
                                     value={editForm.content}
                                     onChange={(e) => setEditForm((prev) => ({ ...prev, content: e.target.value }))}
                                     className="w-full min-h-[180px] rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] p-3 text-sm"
@@ -863,11 +871,12 @@ export const AdminDashboard: React.FC = () => {
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm text-[var(--color-text-secondary)] flex items-center gap-2">
+                                    <label htmlFor="admin-answer-override" className="text-sm text-[var(--color-text-secondary)] flex items-center gap-2">
                                         <Edit3 className="w-4 h-4" />
                                         编辑覆盖答案（支持 HTML / Markdown）
                                     </label>
                                     <textarea
+                                        id="admin-answer-override"
                                         value={currentDraft}
                                         onChange={(e) => handleDraftChange(e.target.value)}
                                         className="w-full min-h-[260px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] p-4 text-sm"

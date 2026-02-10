@@ -17,6 +17,11 @@ type TreeNode = {
     children?: TreeNode[];
 };
 
+const cloneTree = (node: TreeNode): TreeNode => ({
+    ...node,
+    children: node.children ? node.children.map(cloneTree) : undefined,
+});
+
 const initialTreeData: TreeNode = {
     id: 'root',
     type: 'root',
@@ -69,11 +74,6 @@ export const BehaviorTreeExplainer: React.FC = () => {
     const [treeData, setTreeData] = useState<TreeNode>(initialTreeData);
     const [lastAction, setLastAction] = useState('等待指令');
     const [autoPlay, setAutoPlay] = useState(false);
-
-    const cloneTree = (node: TreeNode): TreeNode => ({
-        ...node,
-        children: node.children ? node.children.map(cloneTree) : undefined,
-    });
 
     const tickTree = useCallback(() => {
         const newTree = cloneTree(initialTreeData);
@@ -163,12 +163,8 @@ export const BehaviorTreeExplainer: React.FC = () => {
     useEffect(() => {
         if (!autoPlay) return undefined;
         const interval = setInterval(() => {
-            return (
-                <div className="p-6 max-w-5xl mx-auto space-y-8 mt-8">
-                    <Link to="/hotwords" className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        返回热词列表
-                    </Link>
+            tickTree();
+        }, 1500);
         return () => clearInterval(interval);
     }, [autoPlay, tickTree]);
 
@@ -285,6 +281,7 @@ export const BehaviorTreeExplainer: React.FC = () => {
                                 min="0"
                                 max="100"
                                 value={worldState.hp}
+                                aria-label="生命值"
                                 onChange={(e) => setWorldState((state) => ({ ...state, hp: parseInt(e.target.value, 10) }))}
                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                             />

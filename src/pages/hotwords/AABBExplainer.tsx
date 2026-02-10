@@ -111,20 +111,14 @@ const AABBExplainer: React.FC = () => {
 
           {/* Obstacle */}
           <div 
-            className="absolute bg-slate-300 border-2 border-slate-400 flex items-center justify-center text-slate-500 font-bold"
-            style={{
-              left: obstacle.x,
-              top: obstacle.y,
-              width: obstacle.width,
-              height: obstacle.height,
-            }}
+            className="absolute left-[200px] top-[150px] w-[100px] h-[100px] bg-slate-300 border-2 border-slate-400 flex items-center justify-center text-slate-500 font-bold"
           >
             WALL
           </div>
 
           {/* Player Box */}
           <motion.div
-            className={`absolute flex items-center justify-center border-2 shadow-lg backdrop-blur-sm transition-colors duration-75 ${
+            className={`absolute flex items-center justify-center border-2 shadow-lg backdrop-blur-sm transition-colors duration-75 w-20 h-20 ${
               isColliding 
                 ? 'bg-red-500/20 border-red-500 text-red-600' 
                 : 'bg-blue-500/20 border-blue-500 text-blue-600'
@@ -136,10 +130,6 @@ const AABBExplainer: React.FC = () => {
               scale: 1
             }}
             transition={{ type: 'spring', damping: 20, stiffness: 300, rotate: { duration: 0.2 } }}
-            style={{
-              width: 80,
-              height: 80,
-            }}
           >
             <div className="flex flex-col items-center">
               <Box size={24} />

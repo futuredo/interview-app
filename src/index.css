@@ -447,6 +447,12 @@ body {
   padding: 14px 0;
 }
 
+.quaternion-grid {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
 .dark .danmu-item {
   background: linear-gradient(120deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.8));
   border-color: rgba(99, 102, 241, 0.25);
