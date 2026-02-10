@@ -214,8 +214,8 @@ export const Home: React.FC = () => {
                                         {danmuItems.length === 0 ? (
                                             <div className="danmu-item">等待第一条留言...</div>
                                         ) : (
-                                            danmuItems.map((item, index) => (
-                                                <div key={item.id} className="danmu-item" style={{ animationDelay: `${index * 0.6}s` }}>
+                                            danmuItems.map((item) => (
+                                                <div key={item.id} className="danmu-item">
                                                     <span className="font-semibold">{item.contact}</span>
                                                     <span className="mx-2 text-[var(--color-text-secondary)]">·</span>
                                                     <span>{item.content}</span>

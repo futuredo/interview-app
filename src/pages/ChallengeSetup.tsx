@@ -1,9 +1,36 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Code2, Trophy } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const HOT100_SETTINGS_KEY = 'leetcode-hot100-settings';
+
+const defaultHot100Settings: Hot100Settings = {
+    questionCount: 3,
+    startMode: 'quiz',
+    questionType: 'single',
+    difficulty: 'All',
+    random: true,
+};
+
+const getInitialHot100Settings = (): Hot100Settings => {
+    if (typeof window === 'undefined') return defaultHot100Settings;
+    const rawSettings = localStorage.getItem(HOT100_SETTINGS_KEY);
+    if (!rawSettings) return defaultHot100Settings;
+    try {
+        const parsed = JSON.parse(rawSettings) as Hot100Settings;
+        return {
+            ...defaultHot100Settings,
+            questionCount: parsed.questionCount ?? defaultHot100Settings.questionCount,
+            startMode: parsed.startMode ?? defaultHot100Settings.startMode,
+            questionType: parsed.questionType ?? defaultHot100Settings.questionType,
+            difficulty: parsed.difficulty ?? defaultHot100Settings.difficulty,
+            random: parsed.random ?? defaultHot100Settings.random,
+        };
+    } catch {
+        return defaultHot100Settings;
+    }
+};
 
 type Hot100Settings = {
     questionCount: number;
@@ -17,31 +44,7 @@ export const ChallengeSetup: React.FC = () => {
     const navigate = useNavigate();
     const { favorites, wrongQuestions, challengeConfig, setChallengeConfig, questionBank } = useStore();
     const [configDraft, setConfigDraft] = useState(challengeConfig);
-    const [hot100Settings, setHot100Settings] = useState<Hot100Settings>({
-        questionCount: 3,
-        startMode: 'quiz',
-        questionType: 'single',
-        difficulty: 'All',
-        random: true,
-    });
-
-    useEffect(() => {
-        const rawSettings = localStorage.getItem(HOT100_SETTINGS_KEY);
-        if (!rawSettings) return;
-        try {
-            const parsed = JSON.parse(rawSettings) as Hot100Settings;
-            setHot100Settings((prev) => ({
-                ...prev,
-                questionCount: parsed.questionCount ?? prev.questionCount,
-                startMode: parsed.startMode ?? prev.startMode,
-                questionType: parsed.questionType ?? prev.questionType,
-                difficulty: parsed.difficulty ?? prev.difficulty,
-                random: parsed.random ?? prev.random,
-            }));
-        } catch {
-            // ignore settings errors
-        }
-    }, []);
+    const [hot100Settings, setHot100Settings] = useState<Hot100Settings>(getInitialHot100Settings);
 
     const filteredPool = useMemo(() => {
         let pool = questionBank;
@@ -84,8 +87,9 @@ export const ChallengeSetup: React.FC = () => {
             <div className="surface-card p-6 flex flex-col gap-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-[var(--color-text-secondary)]">题目来源</label>
+                        <label htmlFor="challenge-source" className="text-sm text-[var(--color-text-secondary)]">题目来源</label>
                         <select
+                            id="challenge-source"
                             value={configDraft.questionSource}
                             onChange={(e) => setConfigDraft({ ...configDraft, questionSource: e.target.value as typeof configDraft.questionSource })}
                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -96,8 +100,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-[var(--color-text-secondary)]">题量</label>
+                        <label htmlFor="challenge-count" className="text-sm text-[var(--color-text-secondary)]">题量</label>
                         <select
+                            id="challenge-count"
                             value={configDraft.questionCount}
                             onChange={(e) => setConfigDraft({ ...configDraft, questionCount: Number(e.target.value) as typeof configDraft.questionCount })}
                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -108,8 +113,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-[var(--color-text-secondary)]">难度</label>
+                        <label htmlFor="challenge-difficulty" className="text-sm text-[var(--color-text-secondary)]">难度</label>
                         <select
+                            id="challenge-difficulty"
                             value={configDraft.difficulty}
                             onChange={(e) => setConfigDraft({ ...configDraft, difficulty: e.target.value as typeof configDraft.difficulty })}
                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -121,8 +127,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-[var(--color-text-secondary)]">总时间</label>
+                        <label htmlFor="challenge-total-time" className="text-sm text-[var(--color-text-secondary)]">总时间</label>
                         <select
+                            id="challenge-total-time"
                             value={configDraft.totalTimeLimit}
                             onChange={(e) => setConfigDraft({ ...configDraft, totalTimeLimit: Number(e.target.value) })}
                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -135,8 +142,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-[var(--color-text-secondary)]">每题时间</label>
+                        <label htmlFor="challenge-per-time" className="text-sm text-[var(--color-text-secondary)]">每题时间</label>
                         <select
+                            id="challenge-per-time"
                             value={configDraft.perQuestionTimeLimit}
                             onChange={(e) => setConfigDraft({ ...configDraft, perQuestionTimeLimit: Number(e.target.value) })}
                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -149,8 +157,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-[var(--color-text-secondary)]">出题顺序</label>
+                        <label htmlFor="challenge-order" className="text-sm text-[var(--color-text-secondary)]">出题顺序</label>
                         <select
+                            id="challenge-order"
                             value={configDraft.orderMode}
                             onChange={(e) => setConfigDraft({ ...configDraft, orderMode: e.target.value as typeof configDraft.orderMode })}
                             className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)]"
@@ -194,8 +203,9 @@ export const ChallengeSetup: React.FC = () => {
 
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-slate-500">题量</label>
+                        <label htmlFor="hot100-count" className="text-sm text-slate-500">题量</label>
                         <select
+                            id="hot100-count"
                             value={hot100Settings.questionCount}
                             onChange={(e) => setHot100Settings((prev) => ({
                                 ...prev,
@@ -203,7 +213,7 @@ export const ChallengeSetup: React.FC = () => {
                             }))}
                             className="select-field"
                         >
-                            {[3, 5, 8, 10].map((count) => (
+                            {[3, 5, 10, 20, 50, 100, 200].map((count) => (
                                 <option key={count} value={count}>
                                     {count} 题
                                 </option>
@@ -211,8 +221,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-slate-500">起始模式</label>
+                        <label htmlFor="hot100-mode" className="text-sm text-slate-500">起始模式</label>
                         <select
+                            id="hot100-mode"
                             value={hot100Settings.startMode}
                             onChange={(e) => setHot100Settings((prev) => ({
                                 ...prev,
@@ -225,8 +236,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-slate-500">题型</label>
+                        <label htmlFor="hot100-type" className="text-sm text-slate-500">题型</label>
                         <select
+                            id="hot100-type"
                             value={hot100Settings.questionType}
                             onChange={(e) => setHot100Settings((prev) => ({
                                 ...prev,
@@ -241,8 +253,9 @@ export const ChallengeSetup: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-slate-500">难度</label>
+                        <label htmlFor="hot100-difficulty" className="text-sm text-slate-500">难度</label>
                         <select
+                            id="hot100-difficulty"
                             value={hot100Settings.difficulty}
                             onChange={(e) => setHot100Settings((prev) => ({
                                 ...prev,

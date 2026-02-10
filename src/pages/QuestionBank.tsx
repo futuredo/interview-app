@@ -73,7 +73,9 @@ export const QuestionBank: React.FC = () => {
                         />
                         {searchTerm && (
                             <button
+                                type="button"
                                 onClick={() => setQuestionBankFilters({ searchTerm: '' })}
+                                aria-label="清除搜索"
                                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-[var(--color-hover)] rounded-full text-[var(--color-text-secondary)]"
                             >
                                 <X className="w-4 h-4" />

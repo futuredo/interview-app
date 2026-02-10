@@ -393,6 +393,7 @@ body {
   border-radius: 28px;
   border: 1px solid rgba(226, 232, 240, 0.8);
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
 }
 
@@ -433,6 +434,7 @@ body {
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.14);
   font-size: 0.95rem;
   color: #0f172a;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
