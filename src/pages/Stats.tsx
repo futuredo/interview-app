@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, Clock3, Globe2, TrendingUp } from 'lucide-react';
+import { PageHeader } from '../components/PageHeader';
 
 interface RegionShare {
   name: string;
@@ -114,47 +115,56 @@ export const Stats: React.FC = () => {
   const totalVisitsDisplay = useMemo(() => stats.totalVisits.toLocaleString('en-US'), [stats.totalVisits]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-[var(--color-text-secondary)]">数据统计</p>
-          <h1 className="text-2xl font-bold text-[var(--color-text-main)] mt-1">站点流量概览</h1>
-        </div>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="数据统计"
+        subtitle="浏览量、使用时长与地区分布一屏掌握。"
+        kicker="Analytics"
+        meta={<span>更新：{stats.lastUpdatedDate}</span>}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="card">
+        <div className="surface-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[var(--color-text-secondary)]">累计访问量</p>
               <p className="text-3xl font-bold mt-2 text-[var(--color-text-main)]">{totalVisitsDisplay}</p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-1">持续增长中</p>
             </div>
-            <Activity className="w-10 h-10 text-[var(--color-primary)]" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center">
+              <Activity className="w-6 h-6" />
+            </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="surface-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[var(--color-text-secondary)]">今日新增</p>
               <p className="text-3xl font-bold mt-2 text-[var(--color-text-main)]">{stats.todayIncrement}</p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-1">今日访问趋势</p>
             </div>
-            <TrendingUp className="w-10 h-10 text-[var(--color-primary)]" />
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6" />
+            </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="surface-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[var(--color-text-secondary)]">人均使用时长</p>
               <p className="text-3xl font-bold mt-2 text-[var(--color-text-main)]">{stats.avgDurationMinutes.toFixed(1)} 分钟</p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-1">近 24 小时均值</p>
             </div>
-            <Clock3 className="w-10 h-10 text-[var(--color-primary)]" />
+            <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
+              <Clock3 className="w-6 h-6" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="card">
+      <div className="surface-card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-sm text-[var(--color-text-secondary)]">地区占比</p>
@@ -170,9 +180,9 @@ export const Stats: React.FC = () => {
                 <span>{region.name}</span>
                 <span className="text-[var(--color-text-secondary)]">{region.percent}%</span>
               </div>
-              <div className="w-full bg-[var(--color-hover)] rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-[var(--color-hover)] rounded-full h-2.5 overflow-hidden">
                 <div
-                  className="h-2 rounded-full bg-[var(--color-primary)]"
+                  className="h-2.5 rounded-full bg-[var(--color-primary)]"
                   style={{ width: `${Math.min(region.percent, 100)}%` }}
                 />
               </div>

@@ -6,6 +6,7 @@ import { WordCloud } from '../components/WordCloud';
 import { Link } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { addMessageRemote, fetchChangelog, fetchMessages, seedChangelogIfEmpty } from '../utils/supabaseApi';
+import { PageHeader } from '../components/PageHeader';
 
 export const Home: React.FC = () => {
     const { messageBoard, setMessageBoard, questionBank } = useStore();
@@ -72,12 +73,36 @@ export const Home: React.FC = () => {
     const boardList = useMemo(() => messageBoard.slice(0, 30), [messageBoard]);
     const latestMessage = messageBoard[0];
     const totalMessages = messageBoard.length;
+    const totalQuestions = questionBank.length;
 
     return (
         <div className="flex flex-col gap-12">
+            <PageHeader
+                title="首页概览"
+                subtitle="把学习进度、精选题目和社区动态放在同一页，快速掌握今天的节奏。"
+                kicker="Dashboard"
+                icon={<Sparkles className="w-6 h-6" />}
+                meta={
+                    <>
+                        <span>题库 {totalQuestions} 道</span>
+                        <span className="text-[var(--color-border)]">·</span>
+                        <span>留言 {totalMessages} 条</span>
+                    </>
+                }
+                actions={(
+                    <>
+                        <Link to="/challenge" className="btn-primary px-5 py-2.5 text-sm">
+                            开始挑战
+                        </Link>
+                        <Link to="/questions" className="btn-secondary px-5 py-2.5 text-sm">
+                            查看题库
+                        </Link>
+                    </>
+                )}
+            />
             {/* Hero */}
-            <section className="text-center py-12 px-4 mt-8 hero-panel">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
+            <section className="text-center py-10 px-4 hero-panel">
+                <h1 className="text-3xl md:text-5xl font-bold mb-6 text-gradient leading-tight max-w-4xl mx-auto break-words">
                     Unity 游戏开发面试宝典
                 </h1>
                 <p className="text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-8">
@@ -128,14 +153,18 @@ export const Home: React.FC = () => {
 
             {/* Daily Challenge */}
             <section>
-                <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
-                        <h2 className="text-2xl font-bold text-gray-800">每日精选</h2>
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+                            <span className="inline-flex h-1.5 w-10 rounded-full bg-[var(--color-primary)]/70" />
+                            今日推荐
+                        </div>
+                        <h2 className="text-2xl font-bold text-[var(--color-text-main)] mt-2">每日精选</h2>
+                        <p className="text-sm text-[var(--color-text-secondary)]">随机挑选 10 题，训练节奏更轻松。</p>
                     </div>
                     <button
                         onClick={refreshQuestions}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[var(--color-primary)] border border-[var(--color-border)] rounded-full hover:bg-[var(--color-hover)] transition-colors"
                     >
                         <RefreshCw className={`w-4 h-4 ${isAnimating ? 'animate-spin' : ''}`} />
                         <span>换一换</span>

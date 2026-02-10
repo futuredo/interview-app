@@ -1,12 +1,47 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trophy } from 'lucide-react';
+import { Code2, Trophy } from 'lucide-react';
 import { useStore } from '../store/useStore';
+
+const HOT100_SETTINGS_KEY = 'leetcode-hot100-settings';
+
+type Hot100Settings = {
+    questionCount: number;
+    startMode: 'quiz' | 'flashcard';
+    questionType: 'all' | 'single' | 'multi' | 'truefalse';
+    difficulty: 'All' | 'Easy' | 'Medium' | 'Hard';
+    random: boolean;
+};
 
 export const ChallengeSetup: React.FC = () => {
     const navigate = useNavigate();
     const { favorites, wrongQuestions, challengeConfig, setChallengeConfig, questionBank } = useStore();
     const [configDraft, setConfigDraft] = useState(challengeConfig);
+    const [hot100Settings, setHot100Settings] = useState<Hot100Settings>({
+        questionCount: 3,
+        startMode: 'quiz',
+        questionType: 'single',
+        difficulty: 'All',
+        random: true,
+    });
+
+    useEffect(() => {
+        const rawSettings = localStorage.getItem(HOT100_SETTINGS_KEY);
+        if (!rawSettings) return;
+        try {
+            const parsed = JSON.parse(rawSettings) as Hot100Settings;
+            setHot100Settings((prev) => ({
+                ...prev,
+                questionCount: parsed.questionCount ?? prev.questionCount,
+                startMode: parsed.startMode ?? prev.startMode,
+                questionType: parsed.questionType ?? prev.questionType,
+                difficulty: parsed.difficulty ?? prev.difficulty,
+                random: parsed.random ?? prev.random,
+            }));
+        } catch {
+            // ignore settings errors
+        }
+    }, []);
 
     const filteredPool = useMemo(() => {
         let pool = questionBank;
@@ -27,6 +62,11 @@ export const ChallengeSetup: React.FC = () => {
     const handleStart = () => {
         setChallengeConfig(configDraft);
         navigate('/challenge/play');
+    };
+
+    const handleStartHot100 = () => {
+        localStorage.setItem(HOT100_SETTINGS_KEY, JSON.stringify(hot100Settings));
+        navigate('/challenge/hot100');
     };
 
     return (
@@ -126,6 +166,119 @@ export const ChallengeSetup: React.FC = () => {
                         开始挑战
                     </button>
                     <span className="text-xs text-[var(--color-text-secondary)]">当前池子：{filteredPool.length} 题</span>
+                </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                            <Code2 className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">LeetCode Hot 100</p>
+                            <h2 className="mt-1 text-xl font-semibold text-slate-900">算法挑战小区域</h2>
+                            <p className="mt-2 text-sm text-slate-500">
+                                自定义题量与模式，进入算法测验与抽认卡训练。
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleStartHot100}
+                        className="inline-flex items-center rounded-full bg-amber-500 px-5 py-2 text-xs font-semibold text-white transition hover:bg-amber-600"
+                    >
+                        进入挑战
+                    </button>
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm text-slate-500">题量</label>
+                        <select
+                            value={hot100Settings.questionCount}
+                            onChange={(e) => setHot100Settings((prev) => ({
+                                ...prev,
+                                questionCount: Number(e.target.value),
+                            }))}
+                            className="select-field"
+                        >
+                            {[3, 5, 8, 10].map((count) => (
+                                <option key={count} value={count}>
+                                    {count} 题
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm text-slate-500">起始模式</label>
+                        <select
+                            value={hot100Settings.startMode}
+                            onChange={(e) => setHot100Settings((prev) => ({
+                                ...prev,
+                                startMode: e.target.value as 'quiz' | 'flashcard',
+                            }))}
+                            className="select-field"
+                        >
+                            <option value="quiz">测验模式</option>
+                            <option value="flashcard">抽认卡模式</option>
+                        </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm text-slate-500">题型</label>
+                        <select
+                            value={hot100Settings.questionType}
+                            onChange={(e) => setHot100Settings((prev) => ({
+                                ...prev,
+                                questionType: e.target.value as Hot100Settings['questionType'],
+                            }))}
+                            className="select-field"
+                        >
+                            <option value="all">全部题型</option>
+                            <option value="single">单选</option>
+                            <option value="truefalse">判断</option>
+                            <option value="multi">多选</option>
+                        </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm text-slate-500">难度</label>
+                        <select
+                            value={hot100Settings.difficulty}
+                            onChange={(e) => setHot100Settings((prev) => ({
+                                ...prev,
+                                difficulty: e.target.value as Hot100Settings['difficulty'],
+                            }))}
+                            className="select-field"
+                        >
+                            <option value="All">全部</option>
+                            <option value="Easy">简单</option>
+                            <option value="Medium">中等</option>
+                            <option value="Hard">困难</option>
+                        </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm text-slate-500">随机顺序</label>
+                        <button
+                            type="button"
+                            onClick={() => setHot100Settings((prev) => ({
+                                ...prev,
+                                random: !prev.random,
+                            }))}
+                            className={`inline-flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition ${hot100Settings.random
+                                ? 'border-amber-300 bg-amber-50 text-amber-700'
+                                : 'border-slate-200 text-slate-500'
+                                }`}
+                        >
+                            <span>{hot100Settings.random ? '随机' : '按固定顺序'}</span>
+                            <span className="text-xs">{hot100Settings.random ? 'ON' : 'OFF'}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 text-xs text-slate-500 sm:grid-cols-3">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">即时反馈解析</div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">进度追踪 + 统计</div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">Flashcards 复习</div>
                 </div>
             </div>
         </div>

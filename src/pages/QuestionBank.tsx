@@ -3,6 +3,7 @@ import { QuestionList } from '../components/QuestionList';
 import type { Question } from '../types';
 import { Search, Filter, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { PageHeader } from '../components/PageHeader';
 
 export const QuestionBank: React.FC = () => {
     const { questionBank, questionBankFilters, setQuestionBankFilters, resetQuestionBankFilters } = useStore();
@@ -43,22 +44,32 @@ export const QuestionBank: React.FC = () => {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-6">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold text-[var(--color-text-main)]">全部题库</h1>
-                    <span className="text-[var(--color-text-secondary)] text-sm">共 {filteredQuestions.length} 道题目</span>
-                </div>
+            <PageHeader
+                title="全部题库"
+                subtitle="按关键词、标签和题号排序快速定位题目。"
+                kicker="Question Bank"
+                meta={<span>共 {filteredQuestions.length} 道题目</span>}
+                actions={(
+                    <button
+                        onClick={resetQuestionBankFilters}
+                        className="btn-ghost px-4 py-2"
+                    >
+                        重置筛选
+                    </button>
+                )}
+            />
 
-                {/* Search and Filter Bar */}
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-secondary)]" />
+            {/* Search and Filter Bar */}
+            <div className="surface-card p-5 md:p-6 flex flex-col gap-4">
+                <div className="grid gap-4 md:grid-cols-[1.4fr_0.8fr_1fr]">
+                    <div className="relative">
+                        <Search className="input-icon w-5 h-5 text-[var(--color-text-secondary)]" />
                         <input
                             type="text"
                             placeholder="搜索题目..."
                             value={searchTerm}
                             onChange={(e) => setQuestionBankFilters({ searchTerm: e.target.value })}
-                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            className="input-field pl-10 pr-10"
                         />
                         {searchTerm && (
                             <button
@@ -111,12 +122,11 @@ export const QuestionBank: React.FC = () => {
                             ))}
                         </div>
                     </div>
-                    <button
-                        onClick={resetQuestionBankFilters}
-                        className="px-4 py-3 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)] transition-colors"
-                    >
-                        重置筛选
-                    </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--color-text-secondary)]">
+                    <span className="rounded-full bg-[var(--color-bg)] px-3 py-1">标签 {allTags.length} 个</span>
+                    {selectedTag && <span className="rounded-full bg-[var(--color-bg)] px-3 py-1">当前：{selectedTag}</span>}
+                    {searchTerm && <span className="rounded-full bg-[var(--color-bg)] px-3 py-1">关键词：{searchTerm}</span>}
                 </div>
             </div>
 

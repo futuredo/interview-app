@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { BookOpen, CheckSquare, Home, User, Sun, Moon, Trophy, Star, Menu, X, CalendarCheck, LogIn, LogOut, Shield, Activity, MessageSquare } from 'lucide-react';
+import { BookOpen, CheckSquare, Home, User, Sun, Moon, Trophy, Star, Menu, X, CalendarCheck, LogIn, LogOut, Shield, Activity, MessageSquare, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
 import { useStore } from '../store/useStore';
 
@@ -26,6 +26,7 @@ export const Layout: React.FC = () => {
         { icon: CalendarCheck, label: '打卡', path: '/checkin' },
         { icon: Activity, label: '数据统计', path: '/stats' },
         { icon: MessageSquare, label: '社区留言', path: '/community' },
+        { icon: Sparkles, label: '热词可视化', path: '/hotwords' },
         { icon: User, label: '个人中心', path: '/profile' },
         ...(authUser?.role === 'admin' ? [{ icon: Shield, label: '管理员', path: '/admin' }] : []),
     ];

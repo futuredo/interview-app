@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { interviewKeywords } from '../data/keywords';
+import { interviewKeywords, keywordExplanations } from '../data/keywords';
 
 interface WordCloudProps {
     maxWords?: number;
@@ -38,7 +38,7 @@ export const WordCloud: React.FC<WordCloudProps> = ({ maxWords = 40 }) => {
     };
 
     return (
-        <div className="w-full bg-[var(--color-surface)] rounded-2xl p-8 shadow-sm border border-[var(--color-border)] mb-8 relative overflow-hidden group">
+        <div className="w-full bg-[var(--color-surface)] rounded-2xl p-8 shadow-sm border border-[var(--color-border)] mb-8 relative overflow-visible group">
             <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))] pointer-events-none" />
             <h3 className="text-center text-lg font-semibold text-[var(--color-text-secondary)] mb-6 uppercase tracking-wider relative z-10">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
@@ -49,12 +49,14 @@ export const WordCloud: React.FC<WordCloudProps> = ({ maxWords = 40 }) => {
                 {keywords.map((keyword, index) => (
                     <span
                         key={`${keyword.text}-${index}`}
-                        className={`${getRandomColor(index)} font-bold transition-all duration-300 cursor-default hover:scale-125 hover:rotate-2 hover:text-[var(--color-primary)] drop-shadow-sm`}
+                        className={`keyword-chip ${getRandomColor(index)} font-bold transition-all duration-300 cursor-default hover:scale-125 hover:rotate-2 hover:text-[var(--color-primary)] drop-shadow-sm`}
                         style={{
                             fontSize: `${keyword.size}rem`,
                             opacity: 0.8 + (keyword.size * 0.1),
                             textShadow: '0 2px 4px rgba(0,0,0,0.05)'
                         }}
+                        data-tooltip={keywordExplanations[keyword.text] ?? '暂无简介'}
+                        title={keywordExplanations[keyword.text] ?? '暂无简介'}
                     >
                         {keyword.text}
                     </span>

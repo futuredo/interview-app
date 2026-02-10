@@ -348,6 +348,151 @@ export const Challenge: React.FC = () => {
                         </div>
                     ) : (
                         <div className="animate-fade-in">
+                            <div className="mb-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/40 p-5">
+                                <div className="grid gap-4 md:grid-cols-[auto,1fr,auto] items-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleReviewNavigate('prev')}
+                                        className="flex flex-col items-center gap-2 rounded-2xl border border-[var(--color-border)] px-4 py-3 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-hover)] disabled:opacity-50"
+                                        disabled={currentIndex === 0}
+                                        aria-label="上一个"
+                                    >
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M15 5l-7 7 7 7" />
+                                        </svg>
+                                        <span className="text-xs">上一个</span>
+                                    </button>
+
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAnswer(false)}
+                                                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-hover)]"
+                                            >
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    className="h-4 w-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                >
+                                                    <path d="M9 7H5v4" />
+                                                    <path d="M5 11l6-6" />
+                                                    <path d="M13 5h6v14H7v-6" />
+                                                </svg>
+                                                返回答题
+                                            </button>
+                                            <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+                                                <span>当前题</span>
+                                                <span className="rounded-full bg-[var(--color-bg)] px-3 py-1 text-xs text-[var(--color-text-secondary)]">
+                                                    {currentIndex + 1} / {questions.length}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-wrap items-center justify-between gap-4">
+                                            <div className="flex flex-wrap items-center gap-3">
+                                                <p className="text-[var(--color-text-secondary)] font-medium">这道题你掌握了吗？</p>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setReviewRating('wrong')}
+                                                        className={`px-4 py-2 rounded-lg border transition-colors ${reviewRating === 'wrong'
+                                                            ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+                                                            : 'btn-ghost border-[var(--color-border)]'
+                                                            }`}
+                                                    >
+                                                        还需要复习
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setReviewRating('mastered')}
+                                                        className={`px-4 py-2 rounded-lg border transition-colors ${reviewRating === 'mastered'
+                                                            ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                                                            : 'btn-ghost border-[var(--color-border)]'
+                                                            }`}
+                                                    >
+                                                        <CheckCircle className="w-4 h-4" />
+                                                        完全掌握
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (reviewRating === 'wrong') {
+                                                        recordCurrentRating(false);
+                                                    } else if (reviewRating === 'mastered') {
+                                                        recordCurrentRating(true);
+                                                    }
+                                                    setReviewRating('none');
+                                                }}
+                                                className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-5 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
+                                                disabled={reviewRating === 'none'}
+                                            >
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    className="h-4 w-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                >
+                                                    <path d="M20 6L9 17l-5-5" />
+                                                </svg>
+                                                记录评分
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleReviewNavigate('next')}
+                                        className="flex flex-col items-center gap-2 rounded-2xl border border-[var(--color-border)] px-4 py-3 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-hover)]"
+                                        aria-label={currentIndex === questions.length - 1 ? '完成挑战' : '下一个'}
+                                    >
+                                        {currentIndex === questions.length - 1 ? (
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                className="h-6 w-6"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M12 3l3 6 6 .9-4.5 4.4 1.1 6.5L12 17l-5.6 3.8 1.1-6.5L3 9.9 9 9z" />
+                                            </svg>
+                                        ) : (
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                className="h-6 w-6"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        )}
+                                        <span className="text-xs">{currentIndex === questions.length - 1 ? '完成挑战' : '下一个'}</span>
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="prose dark:prose-invert max-w-none mb-8 text-[var(--color-text-main)]">
                                 <h3 className="text-lg font-semibold text-[var(--color-primary)] mb-3">题目</h3>
                                 {parseContentWithCode(questionPrompt)}
@@ -383,87 +528,11 @@ export const Challenge: React.FC = () => {
                                 {finalAnswer.trim() ? parseContentWithCode(finalAnswer) : <p className="text-[var(--color-text-secondary)]">暂时没有答案内容。</p>}
                             </div>
 
-                            <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-[var(--color-border)]">
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowAnswer(false)}
-                                        className="btn-ghost px-6 py-2"
-                                    >
-                                        返回答题
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleReviewNavigate('prev')}
-                                        className="btn-ghost px-6 py-2"
-                                        disabled={currentIndex === 0}
-                                    >
-                                        上一个
-                                    </button>
-                                    {currentIndex === questions.length - 1 ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => handleReviewNavigate('next')}
-                                            className="btn-primary px-6 py-2"
-                                        >
-                                            完成挑战
-                                        </button>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={() => handleReviewNavigate('next')}
-                                            className="btn-ghost px-6 py-2"
-                                        >
-                                            下一个
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="flex flex-wrap items-center gap-4">
-                                    <p className="text-[var(--color-text-secondary)] font-medium">这道题你掌握了吗？</p>
-                                    <div className="flex gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setReviewRating('wrong')}
-                                            className={`px-4 py-2 rounded-lg border transition-colors ${reviewRating === 'wrong'
-                                                ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-                                                : 'btn-ghost border-[var(--color-border)]'
-                                                }`}
-                                        >
-                                            还需要复习
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setReviewRating('mastered')}
-                                            className={`px-4 py-2 rounded-lg border transition-colors ${reviewRating === 'mastered'
-                                                ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                                                : 'btn-ghost border-[var(--color-border)]'
-                                                }`}
-                                        >
-                                            <CheckCircle className="w-4 h-4" />
-                                            完全掌握
-                                        </button>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (reviewRating === 'wrong') {
-                                                recordCurrentRating(false);
-                                            } else if (reviewRating === 'mastered') {
-                                                recordCurrentRating(true);
-                                            }
-                                            setReviewRating('none');
-                                        }}
-                                        className="btn-primary px-5 py-2"
-                                        disabled={reviewRating === 'none'}
-                                    >
-                                        记录评分
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                     )}
                 </div>
             </div>
+
         </div>
         <ConfirmModal
             isOpen={exitModalOpen}
